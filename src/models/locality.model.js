@@ -8,7 +8,7 @@ const { Model, Sequelize } = require('sequelize');
  */
 module.exports = (sequelize, DataTypes) => {
     class Locality extends Model {
-        associate(models) {
+        static associate(models) {
             Locality.hasMany(models.Ubication, {
                 foreignKey: 'locality_id',
                 onDelete: 'CASCADE',

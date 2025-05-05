@@ -9,7 +9,7 @@ const { Model, Sequelize } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
 
     class Product extends Model {
-        associate(models) {
+        static associate(models) {
             Product.belongsTo(models.Component, {
                 foreignKey: 'component_id',
                 onDelete: 'CASCADE',
@@ -20,8 +20,7 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: 'product_id',
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
-                otherKey: 'product_id',
-                as: 'shoppingCarts'
+                otherKey: 'shopping_cart_id',
             })
         }
     }

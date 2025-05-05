@@ -9,19 +9,18 @@ const { Model, Sequelize } = require('sequelize');
  */
 module.exports = (sequelize, DataTypes) => {
     class ShoppingCart extends Model{
-        associate(models) {
+        static associate(models) {
             ShoppingCart.belongsTo(models.User, {
                 foreignKey: 'user_id',
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
             })
-            ShoppingCart.belongsToMany(models.Products, {
+            ShoppingCart.belongsToMany(models.Product, {
                 through: models.CartProduct,
                 foreignKey: 'shopping_cart_id',
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE',
                 otherKey: 'product_id',
-                as: 'products'
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE'
             })
         }
     }
@@ -42,13 +41,15 @@ module.exports = (sequelize, DataTypes) => {
                     key: 'id',
                 }
             },
-            created_at: {
+            createdAt: {
                 type: DataTypes.DATE,
-                allowNull: false
+                allowNull: false,
+                defaultValue: DataTypes.NOW,
             },
-            last_modification: {
+            updatedAt: {
                 type: DataTypes.DATE,
-                allowNull: false
+                allowNull: false,
+                defaultValue: DataTypes.NOW,
             },
             name: {
                 type: DataTypes.STRING,
@@ -56,7 +57,8 @@ module.exports = (sequelize, DataTypes) => {
             },
             is_active: {
                 type: DataTypes.BOOLEAN,
-                allowNull: false
+                allowNull: false,
+                defaultValue: true
             },
         },
         {

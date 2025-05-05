@@ -9,7 +9,7 @@ const { Model, Sequelize } = require('sequelize');
  */
 module.exports = (sequelize, DataTypes) => {
     class User extends Model{
-        associate(models) {
+        static associate(models) {
             User.hasOne(models.Admin, {
                 foreignKey: 'user_id',
                 onDelete: 'CASCADE',

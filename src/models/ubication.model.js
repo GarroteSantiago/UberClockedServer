@@ -9,7 +9,7 @@ const { Model, Sequelize } = require('sequelize');
  */
 module.exports = (sequelize, DataTypes) => {
     class Ubication extends Model{
-        associate(models) {
+        static associate(models) {
             Ubication.belongsTo(models.Country, {
                 foreignKey: 'country_id',
                 onDelete: 'CASCADE',

@@ -9,7 +9,7 @@ const { Model, Sequelize } = require('sequelize');
  */
 module.exports = (sequelize, DataTypes) => {
     class Component extends Model{
-        associate(models) {
+        static associate(models) {
             Component.hasMany(models.Product, {
                 foreignKey: 'component_id',
                 onDelete: 'CASCADE',

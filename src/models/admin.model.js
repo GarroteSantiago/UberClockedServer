@@ -9,7 +9,7 @@ const { Model, Sequelize } = require('sequelize');
  */
 module.exports = (sequelize, DataTypes) => {
     class Admin extends Model{
-        associate(models) {
+        static associate(models) {
             Admin.belongsTo(models.User, {
                 foreignKey: 'user_id',
                 onDelete: 'CASCADE',
