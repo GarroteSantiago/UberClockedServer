@@ -8,7 +8,23 @@ const { Model, Sequelize } = require('sequelize');
  */
 module.exports = (sequelize, DataTypes) => {
 
-    class Product extends Model {}
+    class Product extends Model {
+        associate(models) {
+            Product.belongsTo(models.Component, {
+                foreignKey: 'component_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            })
+            Product.belongsToMany(models.ShoppingCart, {
+                through: models.CartProduct,
+                foreignKey: 'product_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+                otherKey: 'product_id',
+                as: 'shoppingCarts'
+            })
+        }
+    }
 
     Product.init({
         id: {
@@ -38,6 +54,10 @@ module.exports = (sequelize, DataTypes) => {
             },
             onUpdate: 'CASCADE',
             onDelete: 'CASCADE',
+        },
+        price: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
         },
         rating: {
             type: DataTypes.INTEGER,

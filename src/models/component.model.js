@@ -8,7 +8,15 @@ const { Model, Sequelize } = require('sequelize');
  * @param {typeof import('sequelize').DataTypes} DataTypes
  */
 module.exports = (sequelize, DataTypes) => {
-    class Component extends Model{}
+    class Component extends Model{
+        associate(models) {
+            Component.hasMany(models.Product, {
+                foreignKey: 'component_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            })
+        }
+    }
 
     Component.init
     (

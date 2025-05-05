@@ -7,7 +7,15 @@ const { Model, Sequelize } = require('sequelize');
  * @param {typeof import('sequelize').DataTypes} DataTypes
  */
 module.exports = (sequelize, DataTypes) => {
-    class Province extends Model {}
+    class Province extends Model {
+        associate(models) {
+            Province.hasMany(models.Ubication, {
+                foreignKey: 'province_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            })
+        }
+    }
 
     Province.init
     (

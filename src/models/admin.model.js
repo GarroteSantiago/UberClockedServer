@@ -8,7 +8,15 @@ const { Model, Sequelize } = require('sequelize');
  * @param {typeof import('sequelize').DataTypes} DataTypes
  */
 module.exports = (sequelize, DataTypes) => {
-    class Admin extends Model{}
+    class Admin extends Model{
+        associate(models) {
+            Admin.belongsTo(models.User, {
+                foreignKey: 'user_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            })
+        }
+    }
 
     Admin.init
     (

@@ -8,7 +8,20 @@ const { Model, Sequelize } = require('sequelize');
  * @param {typeof import('sequelize').DataTypes} DataTypes
  */
 module.exports = (sequelize, DataTypes) => {
-    class User extends Model{}
+    class User extends Model{
+        associate(models) {
+            User.hasOne(models.Admin, {
+                foreignKey: 'user_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            })
+            User.hasMany(models.ShoppingCart, {
+                foreignKey: 'user_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            })
+        }
+    }
 
     User.init
     (

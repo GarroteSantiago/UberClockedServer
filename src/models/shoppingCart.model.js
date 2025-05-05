@@ -8,7 +8,23 @@ const { Model, Sequelize } = require('sequelize');
  * @param {typeof import('sequelize').DataTypes} DataTypes
  */
 module.exports = (sequelize, DataTypes) => {
-    class ShoppingCart extends Model{}
+    class ShoppingCart extends Model{
+        associate(models) {
+            ShoppingCart.belongsTo(models.User, {
+                foreignKey: 'user_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            })
+            ShoppingCart.belongsToMany(models.Products, {
+                through: models.CartProduct,
+                foreignKey: 'shopping_cart_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+                otherKey: 'product_id',
+                as: 'products'
+            })
+        }
+    }
 
     ShoppingCart.init
     (
