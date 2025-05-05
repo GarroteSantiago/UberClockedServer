@@ -45,6 +45,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        image_alt:{
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         component_id:{
             type: DataTypes.BIGINT,
             allowNull: false,
@@ -60,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         rating: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.FLOAT,
             allowNull: false,
         },
     }, {
