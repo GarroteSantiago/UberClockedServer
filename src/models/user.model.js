@@ -1,36 +1,58 @@
 'use strict';
 
-const { Model } = require('sequelize');
+const { Model, Sequelize } = require('sequelize');
 
+
+/**
+ * @param {Sequelize} sequelize
+ * @param {typeof import('sequelize').DataTypes} DataTypes
+ */
 module.exports = (sequelize, DataTypes) => {
-    class User extends Model {
-        static associate(models) {
-            // Define associations here
-        }
-    }
+    class User extends Model{}
 
-    User.init({
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true
-        },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        email: {
-            type: DataTypes.STRING,
-            unique: true,
-            validate: {
-                isEmail: true
+    User.init
+    (
+        {
+            id: {
+                type: DataTypes.BIGINT,
+                primaryKey: true,
+                autoIncrement: true
+            },
+            name: {
+                type: DataTypes.STRING,
+                allowNull: true
+            },
+            name_tag: {
+                type: DataTypes.STRING,
+                allowNull: false
+            },
+            email: {
+                type: DataTypes.STRING,
+                allowNull: false
+            },
+            ubication: {
+                type: DataTypes.BIGINT,
+                allowNull: true,
+                references: {
+                    model: 'Ubication',
+                    key: 'id',
+                }
+            },
+            postal_code: {
+                type: DataTypes.STRING,
+                allowNull: true
+            },
+            password: {
+                type: DataTypes.STRING,
+                allowNull: false
             }
+        },
+        {
+            sequelize,
+            modelName: 'User',
+            tableName: 'users'
         }
-    }, {
-        sequelize,
-        modelName: 'User',
-        tableName: 'users'
-    });
+    );
 
     return User;
 };
