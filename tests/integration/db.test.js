@@ -162,7 +162,6 @@ describe('Database Connection and Synchronization', () => {
             expect(productsInCart).toHaveLength(1);
             expect(productsInCart[0].id).toBeDefined(product.id);
         });
+
     });
-
-
 });
