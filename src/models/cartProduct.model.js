@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 onDelete: 'CASCADE',
                 references: {
-                    model: 'ShoppingCart',
+                    model: 'shopping_carts',
                     key: 'id'
                 }
             },
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: 'CASCADE',
                 primaryKey: true,
                 references: {
-                    model: 'Product',
+                    model: 'products',
                     key: 'id'
                 }
             },

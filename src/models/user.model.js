@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BIGINT,
                 allowNull: true,
                 references: {
-                    model: 'Ubication',
+                    model: 'ubications',
                     key: 'id',
                 }
             },
