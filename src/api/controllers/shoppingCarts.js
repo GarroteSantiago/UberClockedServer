@@ -5,15 +5,15 @@ const NotFoundError = require("../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../errors/errorTypes/ValidationError');
 const ConflictError = require('../../errors/errorTypes/ConflictError');
 const multer = require("multer");
-const {where} = require("sequelize");
 const upload = multer()
 
 exports.parseFormData = upload.none();
 
 exports.createShoppingCart = catchAsync(async (req, res) => {
-    const { user_id, name } = req.body;
+    const { name } = req.body;
+    const userId = req.user.id;
 
-    if (!name || !user_id) {
+    if (!name) {
         throw new ValidationError(
             [
                 {field: 'name', message: 'Name is required'},
@@ -24,7 +24,7 @@ exports.createShoppingCart = catchAsync(async (req, res) => {
     }
 
     const existing = await ShoppingCart.findOne({
-        where: { name, user_id }
+        where: { name, user_id: userId }
     })
 
     if (existing) {
@@ -33,7 +33,7 @@ exports.createShoppingCart = catchAsync(async (req, res) => {
 
     const newShoppingCart = await ShoppingCart.create({
         name,
-        user_id,
+        user_id: userId,
     })
 
     res.status(201).json({
@@ -44,7 +44,7 @@ exports.createShoppingCart = catchAsync(async (req, res) => {
 
 exports.createProductInShoppingCart = catchAsync(async (req, res) => {
     const { product_id, quantity } = req.body;
-    const id = req.params.id;
+    const shoppingCart = req.resource;
 
     if (!product_id || !quantity) {
         throw new ValidationError(
@@ -63,11 +63,6 @@ exports.createProductInShoppingCart = catchAsync(async (req, res) => {
             ],
             'Invalid quantity'
         );
-    }
-
-    const shoppingCart = await ShoppingCart.findByPk(id);
-    if (!shoppingCart) {
-        throw new NotFoundError('Shopping cart not found');
     }
 
     const product = await Product.findByPk(product_id)
@@ -108,7 +103,7 @@ exports.createProductInShoppingCart = catchAsync(async (req, res) => {
 });
 
 exports.readShoppingCarts = catchAsync(async (req, res) => {
-    const userId = req.params.userId;
+    const userId = req.user.id;
 
     const rows = await ShoppingCart.findAll({
             where:
@@ -129,30 +124,22 @@ exports.readShoppingCarts = catchAsync(async (req, res) => {
 })
 
 exports.readShoppingCart = catchAsync(async (req, res) => {
-    const id = req.params.id;
-    const component = await ShoppingCart.findByPk(id);
-
-    if (!component) {
-        throw new NotFoundError(`Shopping cart not found by id: ${id}`);
-    }
-
     res.status(200).json({
         status: 'success',
-        data: component ,
+        data: req.resource ,
     })
 
 });
 
-exports.updateShoppingCart = catchAsync(async (req, res) => {
-    const id = req.params.id;
-    const updateData = req.body;
+exports.readShoppingCartProducts = catchAsync(async (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        data: req.resource.getProducts(),
+    })
+});
 
-    if (!Number.isInteger(Number(id))) {
-        throw new ValidationError([{
-            field: 'id',
-            message: 'Shopping cart ID must be an integer'
-        }])
-    }
+exports.updateShoppingCart = catchAsync(async (req, res) => {
+    const updateData = req.body;
 
     if (Object.keys(updateData).length === 0) {
         throw new ValidationError([{
@@ -164,21 +151,16 @@ exports.updateShoppingCart = catchAsync(async (req, res) => {
     const validFields = ['name'];
     const invalidFields = Object.keys(updateData).filter(field => !validFields.includes(field));
 
-    if (invalidFields.length > validFields.length) {
+    if (invalidFields.length > 0) {
         throw new ValidationError(
             invalidFields.map(field => ({
-                field: {field},
+                field,
                 message: `Field ${field} is not updatable.`
             })),
         )
     }
 
-    const shoppingCart = await ShoppingCart.findByPk(id)
-    if (!shoppingCart) {
-        throw new NotFoundError(`Shopping cart with id ${id} not found.`);
-    }
-
-    const updatedShoppingCart = await shoppingCart.update(updateData);
+    const updatedShoppingCart = await req.resource.update(updateData);
 
     res.status(200).json({
         status: 'success',
@@ -187,45 +169,26 @@ exports.updateShoppingCart = catchAsync(async (req, res) => {
 });
 
 exports.deleteShoppingCart = catchAsync(async (req, res) => {
-    const id = req.params.id;
-
-    if (!Number.isInteger(Number(id))) {
-        throw new ValidationError([{
-            field: 'id',
-            message: 'Shopping cart ID must be an integer'
-        }])
-    }
-
-    const shoppingCart = await ShoppingCart.findByPk(id)
-    if (!shoppingCart) {
-        throw new NotFoundError(`Shopping cart ${id} not found.`);
-    }
-
-    await shoppingCart.destroy();
+    await req.resource.destroy();
 
     res.status(200).json({
         status: 'success',
         message: 'Shopping cart deleted.',
-        data: id
+        data: req.params.id
     })
 });
 
 exports.deleteProductFromCart = catchAsync(async (req, res) => {
-    const { productId, cartId} = req.body;
+    const { productId } = req.params;
+    const shoppingCart = req.resource;
 
-    if (!productId || !cartId) {
+    if (!productId) {
         throw new ValidationError(
             [
                 { field: 'productId', message: 'Product ID is required' },
-                { field: 'cartId', message: 'Cart ID is required' },
             ],
             'Missing required field'
         );
-    }
-
-    const shoppingCart = await ShoppingCart.findByPk(cartId);
-    if (!shoppingCart) {
-        throw new NotFoundError('Shopping cart not found');
     }
 
     const product = await Product.findByPk(productId);

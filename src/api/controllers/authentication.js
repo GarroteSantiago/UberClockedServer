@@ -23,8 +23,12 @@ exports.createSession = catchAsync(async (req, res) => {
     }
 
     const user = await User.findOne({
-        where: { email }
-    })
+        where: { email },
+        include: [{
+            model: Role,
+            attributes: ['name']
+        }]
+    });
 
     const isPasswordCorrect = await passwordUtils.verifyPassword(password, user.password);
 
@@ -32,7 +36,8 @@ exports.createSession = catchAsync(async (req, res) => {
         throw new NotFoundError('No user with those credentials.');
     }
 
-    const token = await generateToken(user, 'admin');
+    const role = user.Role.name;
+    const token = await generateToken(user.id, role);
 
     res.status(200).json({
         success: true,
