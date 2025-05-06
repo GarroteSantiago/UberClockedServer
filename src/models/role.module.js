@@ -8,17 +8,15 @@ const { Model, Sequelize } = require('sequelize');
  * @param {typeof import('sequelize').DataTypes} DataTypes
  */
 module.exports = (sequelize, DataTypes) => {
-    class Admin extends Model{
+    class Role extends Model{
         static associate(models) {
-            Admin.belongsTo(models.User, {
-                foreignKey: 'user_id',
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE',
+            Role.hasMany(models.User, {
+                foreignKey: 'role_id',
             })
         }
     }
 
-    Admin.init
+    Role.init
     (
         {
             id: {
@@ -26,22 +24,18 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 autoIncrement: true
             },
-            user_id: {
-                type: DataTypes.BIGINT,
+            name: {
+                type: DataTypes.STRING,
                 allowNull: false,
-                references: {
-                    model: 'users',
-                    key: 'id'
-                }
-            }
+                unique: true
+            },
         },
         {
             sequelize,
-            modelName: 'Admin',
-            tableName: 'admins',
-            timestamps: false,
+            modelName: 'Role',
+            tableName: 'roles'
         }
     );
 
-    return Admin;
+    return Role;
 };

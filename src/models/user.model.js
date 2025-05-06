@@ -10,9 +10,9 @@ const { Model, Sequelize } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class User extends Model{
         static associate(models) {
-            User.hasOne(models.Admin, {
-                foreignKey: 'user_id',
-                onDelete: 'CASCADE',
+            User.belongsTo(models.Role, {
+                foreignKey: 'role_id',
+                onDelete: 'RESTRICT',
                 onUpdate: 'CASCADE',
             })
             User.hasMany(models.ShoppingCart, {
@@ -30,6 +30,15 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.BIGINT,
                 primaryKey: true,
                 autoIncrement: true
+            },
+            role_id: {
+                type: DataTypes.BIGINT,
+                allowNull: false,
+                onDelete: 'RESTRICT',
+                references: {
+                    model: 'roles',
+                    key: 'id'
+                }
             },
             name: {
                 type: DataTypes.STRING,
