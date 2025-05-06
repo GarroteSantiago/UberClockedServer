@@ -1,16 +1,15 @@
-const {
-    BadRequestError,
-    ValidationError,
-    UnauthorizedError,
-    ForbiddenError,
-    NotFoundError,
-    ConflictError,
-    RateLimitError,
-    DatabaseError,
-    ServerError
-} = require('./errorTypes/');
+const BadRequestError = require('../errors/errorTypes/BadRequestError');
+const ValidationError = require('../errors/errorTypes/ValidationError');
+const UnauthorizedError = require('../errors/errorTypes/UnauthorizedError');
+const ForbiddenError = require('../errors/errorTypes/ForbiddenError');
+const NotFoundError = require('../errors/errorTypes/NotFoundError');
+const ConflictError = require('../errors/errorTypes/ConflictError');
+const RateLimitError = require('../errors/errorTypes/RateLimitError');
+const DatabaseError = require('../errors/errorTypes/DatabaseError');
+const ServerError = require('../errors/errorTypes/ServerError');
+const app = require("../app");
 
-module.exports = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
     // Set default values if not set
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
@@ -113,3 +112,5 @@ module.exports = (err, req, res, next) => {
 
     res.status(err.statusCode).json(response);
 };
+
+module.exports = { errorHandler };

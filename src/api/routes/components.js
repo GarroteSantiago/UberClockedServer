@@ -12,3 +12,5 @@ router.post('/', controller.createComponent)
 router.patch('/:id', controller.updateComponent)
 // DELETE a component
 router.delete('/:id', controller.deleteComponent)
+
+module.exports = router;

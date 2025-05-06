@@ -1,5 +1,6 @@
-const component = require('../../models').Component;
-const { DatabaseError, ServerError } = require('../../errors/errorTypes/');
+const Component = require('../../models').Component;
+const DatabaseError = require('../../errors/errorTypes/DatabaseError');
+const ServerError = require('../../errors/errorTypes/ServerError');
 const catchAsync = require('../../utils/catchAsync');
 const NotFoundError = require("../../errors/errorTypes/NotFoundError");
 const {ValidationError} = require('../../errors/errorTypes/ValidationError');
@@ -7,9 +8,9 @@ const {ConflictError} = require('../../errors/errorTypes/ConflictError');
 const {errors} = require("jose");
 
 exports.getAllComponents = catchAsync(async (req, res) => {
-    const [rows] = await component.findAll();
+    const rows = await Component.findAll();
 
-    if (!rows || !rows.length) {
+    if (!rows || rows.length === 0) {
         throw new NotFoundError('Components not found.');
     }
 
@@ -19,9 +20,9 @@ exports.getAllComponents = catchAsync(async (req, res) => {
         data: rows,
     });
 })
-exports.getComponent =catchAsync((req, res) => async (req, res) => {
+exports.getComponent = catchAsync(async (req, res) => {
     const id = req.params.id;
-    const component = await component.findByPk(id);
+    const component = await Component.findByPk(id);
 
     if (!component) {
         throw new NotFoundError(`Component not found by id: ${id}`);
@@ -29,7 +30,7 @@ exports.getComponent =catchAsync((req, res) => async (req, res) => {
 
     res.status(200).json({
         status: 'success',
-        data: { component },
+        data: { componentItem: component },
     })
 
 });
@@ -37,7 +38,7 @@ exports.createComponent =catchAsync(async (req, res) => {
     const { name, description } = req.body;
 
     if (!name || !description) {
-        throw new ValidationError(
+        throw new ValidationError.constructor(
             [
                 {field: 'name', message: 'Name is required'},
                 {field: 'description', message: 'Description is required'},
@@ -45,7 +46,7 @@ exports.createComponent =catchAsync(async (req, res) => {
         );
     }
 
-    const [existing] = await component.findOne({
+    const existing = await Component.findOne({
         where: { name }
     })
 
@@ -53,9 +54,9 @@ exports.createComponent =catchAsync(async (req, res) => {
         throw new ConflictError(`Component name`, name);
     }
 
-    const newComponent = await component.create({
-        name: {name},
-        description: {description},
+    const newComponent = await Component.create({
+        name,
+        description,
     })
 
     res.status(201).json({
@@ -84,7 +85,7 @@ exports.updateComponent = catchAsync(async (req, res) => {
     const validFields = ['name', 'description'];
     const invalidFields = Object.keys(updateData).filter(field => !validFields.includes(field));
 
-    if (!invalidFields.length) {
+    if (invalidFields.length > validFields.length) {
         throw new ValidationError(
             invalidFields.map(field => ({
                 field: {field},
@@ -93,7 +94,7 @@ exports.updateComponent = catchAsync(async (req, res) => {
         )
     }
 
-    const [component] = await component.findByPk(id)
+    const component = await Component.findByPk(id)
     if (!component) {
         throw new NotFoundError(`Component ${id} not found.`);
     }
@@ -115,7 +116,7 @@ exports.deleteComponent = catchAsync(async (req, res) => {
         }])
     }
 
-    const component = await component.findByPk(id)
+    const component = await Component.findByPk(id)
     if (!component) {
         throw new NotFoundError(`Component ${id} not found.`);
     }

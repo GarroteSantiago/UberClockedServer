@@ -37,9 +37,10 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         {
-        sequelize,
-        modelName: 'Component',
-        tableName: 'components'
+            sequelize,
+            modelName: 'Component',
+            tableName: 'components',
+            timestamps: false,
         }
     );
 
