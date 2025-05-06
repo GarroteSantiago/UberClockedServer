@@ -7,7 +7,7 @@ router.get('/', controller.getAllComponents)
 // GET a specific component through its id
 router.get('/:id', controller.getComponent)
 // POST a component
-router.post('/', controller.createComponent)
+router.post('/', controller.parseFormData ,controller.createComponent)
 // PATCH a component
 router.patch('/:id', controller.updateComponent)
 // DELETE a component

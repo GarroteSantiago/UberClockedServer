@@ -1,11 +1,11 @@
 const Component = require('../../models').Component;
-const DatabaseError = require('../../errors/errorTypes/DatabaseError');
-const ServerError = require('../../errors/errorTypes/ServerError');
 const catchAsync = require('../../utils/catchAsync');
 const NotFoundError = require("../../errors/errorTypes/NotFoundError");
-const {ValidationError} = require('../../errors/errorTypes/ValidationError');
-const {ConflictError} = require('../../errors/errorTypes/ConflictError');
+const ValidationError = require('../../errors/errorTypes/ValidationError');
+const ConflictError = require('../../errors/errorTypes/ConflictError');
 const {errors} = require("jose");
+const multer = require("multer");
+const upload = multer()
 
 exports.getAllComponents = catchAsync(async (req, res) => {
     const rows = await Component.findAll();
@@ -20,6 +20,7 @@ exports.getAllComponents = catchAsync(async (req, res) => {
         data: rows,
     });
 })
+
 exports.getComponent = catchAsync(async (req, res) => {
     const id = req.params.id;
     const component = await Component.findByPk(id);
@@ -34,15 +35,18 @@ exports.getComponent = catchAsync(async (req, res) => {
     })
 
 });
+
+exports.parseFormData = upload.none();
 exports.createComponent =catchAsync(async (req, res) => {
     const { name, description } = req.body;
 
     if (!name || !description) {
-        throw new ValidationError.constructor(
+        throw new ValidationError(
             [
                 {field: 'name', message: 'Name is required'},
                 {field: 'description', message: 'Description is required'},
-            ]
+            ],
+            'Missing required fields'
         );
     }
 
@@ -64,6 +68,7 @@ exports.createComponent =catchAsync(async (req, res) => {
         data: { newComponent }
     })
 });
+
 exports.updateComponent = catchAsync(async (req, res) => {
     const id = req.params.id;
     const updateData = req.body;
@@ -106,6 +111,7 @@ exports.updateComponent = catchAsync(async (req, res) => {
         data: updatedComponent
     })
 });
+
 exports.deleteComponent = catchAsync(async (req, res) => {
     const id = req.params.id;
 
