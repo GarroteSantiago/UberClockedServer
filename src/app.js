@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const authRoutes = require('./api/routes/authentication');
 const componentRoutes = require('./api/routes/components');
 const { errorHandler } = require('./errors/errorHandler');
 
@@ -24,6 +25,7 @@ app.use(limiter);
 app.use(express.json({ limit: '10kb' }));
 
 // Routes
+app.use('/api/auth', authRoutes)
 app.use('/api/components', componentRoutes);
 
 // Error handling (must be last!)

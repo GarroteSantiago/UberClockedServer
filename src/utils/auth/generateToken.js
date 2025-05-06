@@ -6,11 +6,11 @@ const generateToken =
     {
         const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-        return await new SignJWT({ id: userId, role })
+        return await new SignJWT({ id: userId, role: role })
             .setProtectedHeader({ alg: 'HS256' })
             .setJti(nanoid())
             .setIssuedAt()
-            .setExpirationTime(process.env.JWT_EXPIRES_IN || '1d')
+            .setExpirationTime(process.env.JWT_EXPIRES_IN || '15m')
             .sign(secret);
     };
 
