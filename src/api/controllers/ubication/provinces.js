@@ -1,4 +1,4 @@
-const Country = require('../../../models').Country;
+const Province = require('../../../models').Province;
 const catchAsync = require('../../../utils/catchAsync');
 const NotFoundError = require("../../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../../errors/errorTypes/ValidationError');
@@ -8,7 +8,7 @@ const upload = multer()
 
 exports.parseFormData = upload.none();
 
-exports.createCountry =catchAsync(async (req, res) => {
+exports.createProvince =catchAsync(async (req, res) => {
     const { name } = req.body;
 
     if (!name) {
@@ -20,29 +20,29 @@ exports.createCountry =catchAsync(async (req, res) => {
         );
     }
 
-    const existing = await Country.findOne({
+    const existing = await Province.findOne({
         where: { name }
     })
 
     if (existing) {
-        throw new ConflictError(`Country name already exists`, name);
+        throw new ConflictError(`Province name already exists`, name);
     }
 
-    const newCountry = await Country.create({
+    const newProvince = await Province.create({
         name,
     })
 
     res.status(201).json({
         status: 'success',
-        data: { newCountry }
+        data: { newProvince }
     })
 });
 
-exports.readCountries = catchAsync(async (req, res) => {
-    const rows = await Country.findAll();
+exports.readProvinces = catchAsync(async (req, res) => {
+    const rows = await Province.findAll();
 
     if (!rows || rows.length === 0) {
-        throw new NotFoundError('Countries not found.');
+        throw new NotFoundError('Provinces not found.');
     }
 
     res.status(200).json({
@@ -52,29 +52,29 @@ exports.readCountries = catchAsync(async (req, res) => {
     });
 })
 
-exports.readCountry = catchAsync(async (req, res) => {
+exports.readProvince = catchAsync(async (req, res) => {
     const id = req.params.id;
-    const country = await Country.findByPk(id);
+    const province = await Province.findByPk(id);
 
-    if (!country) {
-        throw new NotFoundError(`Country not found by id: ${id}`);
+    if (!province) {
+        throw new NotFoundError(`Province not found by id: ${id}`);
     }
 
     res.status(200).json({
         status: 'success',
-        data: { componentItem: country },
+        data: { componentItem: province },
     })
 
 });
 
-exports.updateCountry = catchAsync(async (req, res) => {
+exports.updateProvince = catchAsync(async (req, res) => {
     const id = req.params.id;
     const updateData = req.body;
 
     if (!Number.isInteger(Number(id))) {
         throw new ValidationError([{
             field: 'id',
-            message: 'Country ID must be an integer'
+            message: 'Province ID must be an integer'
         }])
     }
 
@@ -97,39 +97,39 @@ exports.updateCountry = catchAsync(async (req, res) => {
         )
     }
 
-    const country = await Country.findByPk(id)
-    if (!country) {
-        throw new NotFoundError(`Country ${id} not found.`);
+    const province = await Province.findByPk(id)
+    if (!province) {
+        throw new NotFoundError(`Province ${id} not found.`);
     }
 
-    const updatedCountry = await country.update(updateData);
+    const updatedProvince = await province.update(updateData);
 
     res.status(200).json({
         status: 'success',
-        data: updatedCountry
+        data: updatedProvince
     })
 });
 
-exports.deleteCountry = catchAsync(async (req, res) => {
+exports.deleteProvince = catchAsync(async (req, res) => {
     const id = req.params.id;
 
     if (!Number.isInteger(Number(id))) {
         throw new ValidationError([{
             field: 'id',
-            message: 'Country ID must be an integer'
+            message: 'Province ID must be an integer'
         }])
     }
 
-    const country = await Country.findByPk(id)
-    if (!country) {
-        throw new NotFoundError(`Country ${id} not found.`);
+    const province = await Province.findByPk(id)
+    if (!province) {
+        throw new NotFoundError(`Province ${id} not found.`);
     }
 
-    await country.destroy();
+    await province.destroy();
 
     res.status(200).json({
         status: 'success',
-        message: 'Country deleted.',
+        message: 'Province deleted.',
         data: { id }
     })
 });

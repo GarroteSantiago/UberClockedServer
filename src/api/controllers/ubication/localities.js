@@ -1,4 +1,4 @@
-const Country = require('../../../models').Country;
+const Locality = require('../../../models').Locality;
 const catchAsync = require('../../../utils/catchAsync');
 const NotFoundError = require("../../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../../errors/errorTypes/ValidationError');
@@ -8,7 +8,7 @@ const upload = multer()
 
 exports.parseFormData = upload.none();
 
-exports.createCountry =catchAsync(async (req, res) => {
+exports.createLocality =catchAsync(async (req, res) => {
     const { name } = req.body;
 
     if (!name) {
@@ -20,29 +20,29 @@ exports.createCountry =catchAsync(async (req, res) => {
         );
     }
 
-    const existing = await Country.findOne({
+    const existing = await Locality.findOne({
         where: { name }
     })
 
     if (existing) {
-        throw new ConflictError(`Country name already exists`, name);
+        throw new ConflictError(`Locality name already exists`, name);
     }
 
-    const newCountry = await Country.create({
+    const newLocality = await Locality.create({
         name,
     })
 
     res.status(201).json({
         status: 'success',
-        data: { newCountry }
+        data: { newLocality }
     })
 });
 
-exports.readCountries = catchAsync(async (req, res) => {
-    const rows = await Country.findAll();
+exports.readLocalities = catchAsync(async (req, res) => {
+    const rows = await Locality.findAll();
 
     if (!rows || rows.length === 0) {
-        throw new NotFoundError('Countries not found.');
+        throw new NotFoundError('Localities not found.');
     }
 
     res.status(200).json({
@@ -52,29 +52,29 @@ exports.readCountries = catchAsync(async (req, res) => {
     });
 })
 
-exports.readCountry = catchAsync(async (req, res) => {
+exports.readLocality = catchAsync(async (req, res) => {
     const id = req.params.id;
-    const country = await Country.findByPk(id);
+    const locality = await Locality.findByPk(id);
 
-    if (!country) {
-        throw new NotFoundError(`Country not found by id: ${id}`);
+    if (!locality) {
+        throw new NotFoundError(`Locality not found by id: ${id}`);
     }
 
     res.status(200).json({
         status: 'success',
-        data: { componentItem: country },
+        data: { componentItem: locality },
     })
 
 });
 
-exports.updateCountry = catchAsync(async (req, res) => {
+exports.updateLocality = catchAsync(async (req, res) => {
     const id = req.params.id;
     const updateData = req.body;
 
     if (!Number.isInteger(Number(id))) {
         throw new ValidationError([{
             field: 'id',
-            message: 'Country ID must be an integer'
+            message: 'Locality ID must be an integer'
         }])
     }
 
@@ -97,20 +97,20 @@ exports.updateCountry = catchAsync(async (req, res) => {
         )
     }
 
-    const country = await Country.findByPk(id)
-    if (!country) {
-        throw new NotFoundError(`Country ${id} not found.`);
+    const locality = await Locality.findByPk(id)
+    if (!locality) {
+        throw new NotFoundError(`Locality ${id} not found.`);
     }
 
-    const updatedCountry = await country.update(updateData);
+    const updatedLocality = await locality.update(updateData);
 
     res.status(200).json({
         status: 'success',
-        data: updatedCountry
+        data: updatedLocality
     })
 });
 
-exports.deleteCountry = catchAsync(async (req, res) => {
+exports.deleteLocality = catchAsync(async (req, res) => {
     const id = req.params.id;
 
     if (!Number.isInteger(Number(id))) {
@@ -120,7 +120,7 @@ exports.deleteCountry = catchAsync(async (req, res) => {
         }])
     }
 
-    const country = await Country.findByPk(id)
+    const country = await Locality.findByPk(id)
     if (!country) {
         throw new NotFoundError(`Country ${id} not found.`);
     }

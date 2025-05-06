@@ -1,4 +1,4 @@
-const Country = require('../../../models').Country;
+const Ubication = require('../../../models').Ubication;
 const catchAsync = require('../../../utils/catchAsync');
 const NotFoundError = require("../../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../../errors/errorTypes/ValidationError');
@@ -8,41 +8,45 @@ const upload = multer()
 
 exports.parseFormData = upload.none();
 
-exports.createCountry =catchAsync(async (req, res) => {
-    const { name } = req.body;
+exports.createUbication =catchAsync(async (req, res) => {
+    const { country_id, province_id, locality_id } = req.body;
 
-    if (!name) {
+    if (!country_id || !province_id || !locality_id) {
         throw new ValidationError(
             [
-                {field: 'name', message: 'Name is required'},
+                {field: 'country_id', message: 'country_id is required'},
+                {field: 'province_id', message: 'province_id is required'},
+                {field: 'locality_id', message: 'locality_id is required'},
             ],
             'Missing required fields'
         );
     }
 
-    const existing = await Country.findOne({
-        where: { name }
+    const existing = await Ubication.findOne({
+        where: { country_id, province_id, locality_id }
     })
 
     if (existing) {
-        throw new ConflictError(`Country name already exists`, name);
+        throw new ConflictError(`Ubication already exists`);
     }
 
-    const newCountry = await Country.create({
-        name,
+    const newUbication = await Ubication.create({
+        country_id,
+        province_id,
+        locality_id,
     })
 
     res.status(201).json({
         status: 'success',
-        data: { newCountry }
+        data: { newUbication }
     })
 });
 
-exports.readCountries = catchAsync(async (req, res) => {
-    const rows = await Country.findAll();
+exports.readUbications = catchAsync(async (req, res) => {
+    const rows = await Ubication.findAll();
 
     if (!rows || rows.length === 0) {
-        throw new NotFoundError('Countries not found.');
+        throw new NotFoundError('Ubications not found.');
     }
 
     res.status(200).json({
@@ -52,29 +56,29 @@ exports.readCountries = catchAsync(async (req, res) => {
     });
 })
 
-exports.readCountry = catchAsync(async (req, res) => {
+exports.readUbication = catchAsync(async (req, res) => {
     const id = req.params.id;
-    const country = await Country.findByPk(id);
+    const ubication = await Ubication.findByPk(id);
 
-    if (!country) {
-        throw new NotFoundError(`Country not found by id: ${id}`);
+    if (!ubication) {
+        throw new NotFoundError(`Ubication not found by id: ${id}`);
     }
 
     res.status(200).json({
         status: 'success',
-        data: { componentItem: country },
+        data: { componentItem: ubication },
     })
 
 });
 
-exports.updateCountry = catchAsync(async (req, res) => {
+exports.updateUbication = catchAsync(async (req, res) => {
     const id = req.params.id;
     const updateData = req.body;
 
     if (!Number.isInteger(Number(id))) {
         throw new ValidationError([{
             field: 'id',
-            message: 'Country ID must be an integer'
+            message: 'Ubication ID must be an integer'
         }])
     }
 
@@ -97,39 +101,39 @@ exports.updateCountry = catchAsync(async (req, res) => {
         )
     }
 
-    const country = await Country.findByPk(id)
-    if (!country) {
-        throw new NotFoundError(`Country ${id} not found.`);
+    const ubication = await Ubication.findByPk(id)
+    if (!ubication) {
+        throw new NotFoundError(`Ubication ${id} not found.`);
     }
 
-    const updatedCountry = await country.update(updateData);
+    const updatedUbication = await ubication.update(updateData);
 
     res.status(200).json({
         status: 'success',
-        data: updatedCountry
+        data: updatedUbication
     })
 });
 
-exports.deleteCountry = catchAsync(async (req, res) => {
+exports.deleteUbication = catchAsync(async (req, res) => {
     const id = req.params.id;
 
     if (!Number.isInteger(Number(id))) {
         throw new ValidationError([{
             field: 'id',
-            message: 'Country ID must be an integer'
+            message: 'Ubication ID must be an integer'
         }])
     }
 
-    const country = await Country.findByPk(id)
-    if (!country) {
-        throw new NotFoundError(`Country ${id} not found.`);
+    const ubication = await Ubication.findByPk(id)
+    if (!ubication) {
+        throw new NotFoundError(`Ubication ${id} not found.`);
     }
 
-    await country.destroy();
+    await ubication.destroy();
 
     res.status(200).json({
         status: 'success',
-        message: 'Country deleted.',
+        message: 'Ubication deleted.',
         data: { id }
     })
 });
