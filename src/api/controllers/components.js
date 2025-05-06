@@ -3,40 +3,11 @@ const catchAsync = require('../../utils/catchAsync');
 const NotFoundError = require("../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../errors/errorTypes/ValidationError');
 const ConflictError = require('../../errors/errorTypes/ConflictError');
-const {errors} = require("jose");
 const multer = require("multer");
 const upload = multer()
 
-exports.getAllComponents = catchAsync(async (req, res) => {
-    const rows = await Component.findAll();
-
-    if (!rows || rows.length === 0) {
-        throw new NotFoundError('Components not found.');
-    }
-
-    res.status(200).json({
-        status: 'success',
-        results: rows.length,
-        data: rows,
-    });
-})
-
-exports.getComponent = catchAsync(async (req, res) => {
-    const id = req.params.id;
-    const component = await Component.findByPk(id);
-
-    if (!component) {
-        throw new NotFoundError(`Component not found by id: ${id}`);
-    }
-
-    res.status(200).json({
-        status: 'success',
-        data: { componentItem: component },
-    })
-
-});
-
 exports.parseFormData = upload.none();
+
 exports.createComponent =catchAsync(async (req, res) => {
     const { name, description } = req.body;
 
@@ -110,6 +81,35 @@ exports.updateComponent = catchAsync(async (req, res) => {
         status: 'success',
         data: updatedComponent
     })
+});
+
+exports.readComponents = catchAsync(async (req, res) => {
+    const rows = await Component.findAll();
+
+    if (!rows || rows.length === 0) {
+        throw new NotFoundError('Components not found.');
+    }
+
+    res.status(200).json({
+        status: 'success',
+        results: rows.length,
+        data: rows,
+    });
+})
+
+exports.readComponent = catchAsync(async (req, res) => {
+    const id = req.params.id;
+    const component = await Component.findByPk(id);
+
+    if (!component) {
+        throw new NotFoundError(`Component not found by id: ${id}`);
+    }
+
+    res.status(200).json({
+        status: 'success',
+        data: { componentItem: component },
+    })
+
 });
 
 exports.deleteComponent = catchAsync(async (req, res) => {
