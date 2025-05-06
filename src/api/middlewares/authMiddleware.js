@@ -1,6 +1,6 @@
 const { jwtVerify } = require('jose');
-const UnauthorizedError = require('../errors/errorTypes/UnauthorizedError');
-const catchAsync = require('../utils/catchAsync');
+const UnauthorizedError = require('../../errors/errorTypes/UnauthorizedError');
+const catchAsync = require('../../utils/catchAsync');
 
 const verifyJWT = catchAsync(async (req, res, next) => {
     // Get token from headers
