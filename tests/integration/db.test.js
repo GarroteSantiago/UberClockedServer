@@ -157,7 +157,6 @@ describe('Database Connection and Synchronization', () => {
             );
 
             const productsInCart = await cart.getProducts()
-            console.log(productsInCart);
             expect(productsInCart).toBeDefined();
             expect(productsInCart).toHaveLength(1);
             expect(productsInCart[0].id).toBeDefined(product.id);
