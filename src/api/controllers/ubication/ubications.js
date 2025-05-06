@@ -66,52 +66,9 @@ exports.readUbication = catchAsync(async (req, res) => {
 
     res.status(200).json({
         status: 'success',
-        data: { componentItem: ubication },
+        data: ubication,
     })
 
-});
-
-exports.updateUbication = catchAsync(async (req, res) => {
-    const id = req.params.id;
-    const updateData = req.body;
-
-    if (!Number.isInteger(Number(id))) {
-        throw new ValidationError([{
-            field: 'id',
-            message: 'Ubication ID must be an integer'
-        }])
-    }
-
-    if (Object.keys(updateData).length === 0) {
-        throw new ValidationError([{
-            field: 'body',
-            message: 'No fields provided for update'
-        }])
-    }
-
-    const validFields = ['name'];
-    const invalidFields = Object.keys(updateData).filter(field => !(validFields.includes(field)));
-
-    if (invalidFields.length > 0) {
-        throw new ValidationError(
-            invalidFields.map(field => ({
-                field: {field},
-                message: `Field ${field} is not updatable.`
-            })),
-        )
-    }
-
-    const ubication = await Ubication.findByPk(id)
-    if (!ubication) {
-        throw new NotFoundError(`Ubication ${id} not found.`);
-    }
-
-    const updatedUbication = await ubication.update(updateData);
-
-    res.status(200).json({
-        status: 'success',
-        data: updatedUbication
-    })
 });
 
 exports.deleteUbication = catchAsync(async (req, res) => {

@@ -1,4 +1,4 @@
-const Country = require('../../../models').Country;
+const Role = require('../../../models').Role;
 const catchAsync = require('../../../utils/catchAsync');
 const NotFoundError = require("../../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../../errors/errorTypes/ValidationError');
@@ -8,7 +8,7 @@ const upload = multer()
 
 exports.parseFormData = upload.none();
 
-exports.createCountry =catchAsync(async (req, res) => {
+exports.createRole =catchAsync(async (req, res) => {
     const { name } = req.body;
 
     if (!name) {
@@ -20,29 +20,29 @@ exports.createCountry =catchAsync(async (req, res) => {
         );
     }
 
-    const existing = await Country.findOne({
+    const existing = await Role.findOne({
         where: { name }
     })
 
     if (existing) {
-        throw new ConflictError(`Country name already exists`, name);
+        throw new ConflictError(`Role already exists`, name);
     }
 
-    const newCountry = await Country.create({
+    const newRole = await Role.create({
         name,
     })
 
     res.status(201).json({
         status: 'success',
-        data: { newCountry }
+        data: { newRole }
     })
 });
 
-exports.readCountries = catchAsync(async (req, res) => {
-    const rows = await Country.findAll();
+exports.readRoles = catchAsync(async (req, res) => {
+    const rows = await Role.findAll();
 
     if (!rows || rows.length === 0) {
-        throw new NotFoundError('Countries not found.');
+        throw new NotFoundError('Roles not found.');
     }
 
     res.status(200).json({
@@ -52,29 +52,29 @@ exports.readCountries = catchAsync(async (req, res) => {
     });
 })
 
-exports.readCountry = catchAsync(async (req, res) => {
+exports.readRole = catchAsync(async (req, res) => {
     const id = req.params.id;
-    const country = await Country.findByPk(id);
+    const role = await Role.findByPk(id);
 
-    if (!country) {
-        throw new NotFoundError(`Country not found by id: ${id}`);
+    if (!role) {
+        throw new NotFoundError(`Role not found by id: ${id}`);
     }
 
     res.status(200).json({
         status: 'success',
-        data: country,
+        data: { componentItem: role },
     })
 
 });
 
-exports.updateCountry = catchAsync(async (req, res) => {
+exports.updateRole = catchAsync(async (req, res) => {
     const id = req.params.id;
     const updateData = req.body;
 
     if (!Number.isInteger(Number(id))) {
         throw new ValidationError([{
             field: 'id',
-            message: 'Country ID must be an integer'
+            message: 'Role ID must be an integer'
         }])
     }
 
@@ -97,39 +97,39 @@ exports.updateCountry = catchAsync(async (req, res) => {
         )
     }
 
-    const country = await Country.findByPk(id)
-    if (!country) {
-        throw new NotFoundError(`Country ${id} not found.`);
+    const role = await Role.findByPk(id)
+    if (!role) {
+        throw new NotFoundError(`Role ${id} not found.`);
     }
 
-    const updatedCountry = await country.update(updateData);
+    const updatedRole = await role.update(updateData);
 
     res.status(200).json({
         status: 'success',
-        data: updatedCountry
+        data: updatedRole
     })
 });
 
-exports.deleteCountry = catchAsync(async (req, res) => {
+exports.deleteRole = catchAsync(async (req, res) => {
     const id = req.params.id;
 
     if (!Number.isInteger(Number(id))) {
         throw new ValidationError([{
             field: 'id',
-            message: 'Country ID must be an integer'
+            message: 'Role ID must be an integer'
         }])
     }
 
-    const country = await Country.findByPk(id)
-    if (!country) {
-        throw new NotFoundError(`Country ${id} not found.`);
+    const role = await Role.findByPk(id)
+    if (!role) {
+        throw new NotFoundError(`Role ${id} not found.`);
     }
 
-    await country.destroy();
+    await role.destroy();
 
     res.status(200).json({
         status: 'success',
-        message: 'Country deleted.',
+        message: 'Role deleted.',
         data: { id }
     })
 });

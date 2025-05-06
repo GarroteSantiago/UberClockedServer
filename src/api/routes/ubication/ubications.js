@@ -11,10 +11,8 @@ router.get('/:id', controller.readUbication)
 
 // Protected Routes
 router.use(verifyJWT);
-// POST a ubication
+// POST an ubication
 router.post('/', controller.parseFormData, restrictTo('admin'), controller.createUbication);
-// PATCH a ubication
-router.patch('/:id', controller.parseFormData, restrictTo('admin'), controller.updateUbication);
 // DELETE a ubication
 router.delete('/:id', restrictTo('admin'), controller.deleteUbication);
 

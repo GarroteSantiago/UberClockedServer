@@ -6,15 +6,16 @@ const ValidationError = require('../../errors/errorTypes/ValidationError');
 const multer = require("multer");
 const BadRequestError = require("../../errors/errorTypes/BadRequestError");
 const upload = multer()
+const passwordUtils = require('../../utils/auth/passwordUtils');
 
 exports.parseFormData = upload.none();
 exports.createSession = catchAsync(async (req, res) => {
-    const { name, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!name || !password ) {
+    if (!email || !password ) {
         throw new ValidationError(
             [
-                {field: 'name', message: 'Name is required'},
+                {field: 'email', message: 'E-mail is required'},
                 {field: 'password', message: 'Password is required'},
             ],
             'Missing required fields'
@@ -22,13 +23,12 @@ exports.createSession = catchAsync(async (req, res) => {
     }
 
     const user = await User.findOne({
-        where: {
-            name: name,
-            password: password,
-        }
+        where: { email }
     })
 
-    if (!user) {
+    const isPasswordCorrect = await passwordUtils.verifyPassword(password, user.password);
+
+    if (!user || !isPasswordCorrect) {
         throw new NotFoundError('No user with those credentials.');
     }
 
