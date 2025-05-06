@@ -3,6 +3,7 @@ const catchAsync = require('../../../utils/catchAsync');
 const NotFoundError = require("../../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../../errors/errorTypes/ValidationError');
 const ConflictError = require('../../../errors/errorTypes/ConflictError');
+const ForbiddenError = require('../../../errors/errorTypes/ForbiddenError');
 const multer = require("multer");
 const upload = multer()
 const passwordUtils = require('../../../utils/auth/passwordUtils');
@@ -22,6 +23,10 @@ exports.createUser =catchAsync(async (req, res) => {
             ],
             'Missing required fields'
         );
+    }
+
+    if (role_id === process.env.ADMIN_ROLE_ID && req.user?.role !== 'admin') {
+        throw new ForbiddenError('Only admins can create admin users');
     }
 
     const existingEmail = await User.findOne({
@@ -46,7 +51,7 @@ exports.createUser =catchAsync(async (req, res) => {
         role_id,
         name_tag,
         email,
-        hashedPassword
+        password: hashedPassword
     })
 
     res.status(201).json({
@@ -56,7 +61,10 @@ exports.createUser =catchAsync(async (req, res) => {
 });
 
 exports.readUsers = catchAsync(async (req, res) => {
-    const rows = await User.findAll();
+
+    const rows = await User.findAll({
+        attributes: { exclude: ['password'] }
+    });
 
     if (!rows || rows.length === 0) {
         throw new NotFoundError('Roles not found.');
@@ -70,11 +78,19 @@ exports.readUsers = catchAsync(async (req, res) => {
 })
 
 exports.readUser = catchAsync(async (req, res) => {
-    const id = req.params.id;
-    const user = await User.findByPk(id);
+    const id = req.params.id || req.user.id;
+
+    // If it's trying to see another user and it's not admin
+    if (id !== req.user.id && req.user.role !== 'admin') {
+        throw new ForbiddenError('You can only view your own profile, only admins can see other users');
+    }
+
+    const user = await User.findByPk(id, {
+        attributes: { exclude: ['password'] }
+    });
 
     if (!user) {
-        throw new NotFoundError(`User not found by id: ${id}`);
+        throw new NotFoundError(`User not found`);
     }
 
     res.status(200).json({
@@ -85,7 +101,7 @@ exports.readUser = catchAsync(async (req, res) => {
 });
 
 exports.updateUser = catchAsync(async (req, res) => {
-    const id = req.params.id;
+    const id = req.params.id || req.user.id;
     const updateData = req.body;
 
     if (!Number.isInteger(Number(id))) {
@@ -93,6 +109,34 @@ exports.updateUser = catchAsync(async (req, res) => {
             field: 'id',
             message: 'User ID must be an integer'
         }])
+    }
+
+    // Non-admins can only update themselves
+    if (id !== req.user.id && req.user.role !== 'admin') {
+        throw new ForbiddenError('You can only update your own profile');
+
+    }
+
+    // Prevent role escalation
+    if (updateData.role_id && req.user.role !== 'admin') {
+        throw new ForbiddenError('Only admins can change roles');
+
+    }
+
+    // Check for unique email
+    if (updateData.email) {
+        const existing = await User.findOne({ where: { email: updateData.email } });
+        if (existing && existing.id !== id) {
+            throw new ConflictError('Email already in use');
+        }
+    }
+
+    // Check for unique name_tag
+    if (updateData.name_tag) {
+        const existing = await User.findOne({ where: { name_tag: updateData.name_tag } });
+        if (existing && existing.id !== id) {
+            throw new ConflictError('Name tag already in use');
+        }
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -128,7 +172,7 @@ exports.updateUser = catchAsync(async (req, res) => {
 });
 
 exports.deleteUser = catchAsync(async (req, res) => {
-    const id = req.params.id;
+    const id = req.params.id || req.user.id;
 
     if (!Number.isInteger(Number(id))) {
         throw new ValidationError([{
@@ -137,9 +181,23 @@ exports.deleteUser = catchAsync(async (req, res) => {
         }])
     }
 
+    // Non-admins can only delete themselves
+    if (id !== req.user.id && req.user.role !== 'admin') {
+        throw new ForbiddenError('You can only delete your own account');
+    }
+
+
+
     const user = await User.findByPk(id)
     if (!user) {
         throw new NotFoundError(`User ${id} not found.`);
+    }
+
+    if (user.role_id === process.env.ADMIN_ROLE_ID) {
+        const adminCount = await User.count({ where: { role_id: process.env.ADMIN_ROLE_ID } });
+        if (adminCount <= 1) {
+            throw new ForbiddenError('Cannot delete last admin');
+        }
     }
 
     await user.destroy();
