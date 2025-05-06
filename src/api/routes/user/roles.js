@@ -3,14 +3,12 @@ const router = express.Router();
 const controller = require('../../controllers/user/roles');
 const { verifyJWT, restrictTo } = require('../../middlewares/authMiddleware');
 
-// Public Routes
-// GET all roles
-router.get('/', controller.readRoles);
-// GET a specific role through its id
-router.get('/:id', controller.readRole);
-
 // Protected Routes
 router.use(verifyJWT);
+// GET all roles
+router.get('/', restrictTo('admin'), controller.readRoles);
+// GET a specific role through its id
+router.get('/:id', restrictTo('admin'), controller.readRole);
 // POST a role
 router.post('/', controller.parseFormData, restrictTo('admin'), controller.createRole);
 // PATCH a role

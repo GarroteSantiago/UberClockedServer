@@ -12,7 +12,7 @@ router.get('/:id', controller.readUbication)
 // Protected Routes
 router.use(verifyJWT);
 // POST an ubication
-router.post('/', controller.parseFormData, restrictTo('admin'), controller.createUbication);
+router.post('/', controller.parseFormData, controller.createUbication);
 // DELETE a ubication
 router.delete('/:id', restrictTo('admin'), controller.deleteUbication);
 
