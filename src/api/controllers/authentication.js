@@ -3,10 +3,11 @@ const {generateToken} = require('../../utils/auth/generateToken');
 const catchAsync = require('../../utils/catchAsync');
 const NotFoundError = require("../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../errors/errorTypes/ValidationError');
+const UnauthorizedError = require('../../errors/errorTypes/UnauthorizedError');
 const multer = require("multer");
-const BadRequestError = require("../../errors/errorTypes/BadRequestError");
 const upload = multer()
 const passwordUtils = require('../../utils/auth/passwordUtils');
+const jwt = require('jose')
 
 exports.parseFormData = upload.none();
 
@@ -71,3 +72,30 @@ exports.deleteSession = catchAsync(async (req, res) => {
     });
     res.status(204).end();
 });
+
+exports.checkSession = catchAsync(async (req, res) => {
+    const token = req.cookies.jwt;
+
+    if (!token) {
+        throw new UnauthorizedError('Not authenticated');
+    }
+
+    const secret = new TextEncoder().encode(process.env.NODE_ENV);
+    const { payload } = await jwt.jwtVerify(token, secret);
+
+    const user = await User.findByPk(payload.userId, {
+        attributes: { exclude: ['password'] },
+        include: [{
+            model: Role,
+            attributes: ['name']
+        }]
+    });
+
+    if (!user) {
+        throw new UnauthorizedError('User does not exist');
+    }
+
+    res.status(200).json({
+        user: user,
+    })
+})
