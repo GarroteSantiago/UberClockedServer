@@ -9,6 +9,7 @@ const upload = multer()
 const passwordUtils = require('../../utils/auth/passwordUtils');
 
 exports.parseFormData = upload.none();
+
 exports.createSession = catchAsync(async (req, res) => {
     const { email, password } = req.body;
 
@@ -39,11 +40,34 @@ exports.createSession = catchAsync(async (req, res) => {
     const role = user.Role.name;
     const token = await generateToken(user.id, role);
 
+    res.cookie('jwt', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // HTTPS in production
+        sameSite: process.env.NODE_ENV === 'development' ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        domain: process.env.NODE_ENV === 'production' ? 'yourDomain.com' : undefined
+    })
+
+    const userData = {
+        id: user.id,
+        email: user.email,
+        name_tag: user.name_tag,
+        role: role,
+    }
+
     res.status(200).json({
         success: true,
-        token: token
+        user: userData,
     })
 });
+
 exports.deleteSession = catchAsync(async (req, res) => {
-    throw new BadRequestError("Server-side token invalidation not implemented. Client must delete the token manually. Use short-lived tokens for security.");
+    res.clearCookie('jwt', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // HTTPS in production
+        sameSite: process.env.NODE_ENV === 'development' ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        domain: process.env.NODE_ENV === 'production' ? 'yourDomain.com' : undefined
+    });
+    res.status(204).end();
 });
