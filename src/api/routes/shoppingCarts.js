@@ -16,7 +16,7 @@ router.get('/:id/products', checkOwnership(ShoppingCart), controller.readShoppin
 // POST a shopping cart
 router.post('/', controller.parseFormData, controller.createShoppingCart);
 // POST a product to a shopping cart
-router.post('/:cartId/products/:productId', checkOwnership(ShoppingCart, {paramName: 'cartId'}), controller.parseFormData, controller.createProductInShoppingCart);
+router.post('/:cartId/products/', checkOwnership(ShoppingCart, {paramName: 'cartId'}), controller.parseFormData, controller.createProductInShoppingCart);
 // PATCH a shopping cart
 router.patch('/:id', checkOwnership(ShoppingCart), controller.parseFormData, controller.updateShoppingCart)
 // DELETE a shopping cart

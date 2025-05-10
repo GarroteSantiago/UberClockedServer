@@ -17,7 +17,6 @@ exports.createShoppingCart = catchAsync(async (req, res) => {
         throw new ValidationError(
             [
                 {field: 'name', message: 'Name is required'},
-                {field: 'user_id', message: 'User is required'},
             ],
             'Missing required fields'
         );
