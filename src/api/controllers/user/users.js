@@ -81,7 +81,7 @@ exports.readUser = catchAsync(async (req, res) => {
     const id = req.params.id || req.user.id;
 
     // If it's trying to see another user and it's not admin
-    if (id !== req.user.id && req.user.role !== 'admin') {
+    if (id !== req.user.id && req.user.role.dataValues.name !== 'admin') {
         throw new ForbiddenError('You can only view your own profile, only admins can see other users');
     }
 
@@ -112,7 +112,7 @@ exports.updateUser = catchAsync(async (req, res) => {
     }
 
     // Non-admins can only update themselves
-    if (id !== req.user.id && req.user.role !== 'admin') {
+    if (id !== req.user.id && req.user.role.dataValues.name !== 'admin') {
         throw new ForbiddenError('You can only update your own profile');
 
     }
@@ -180,9 +180,8 @@ exports.deleteUser = catchAsync(async (req, res) => {
             message: 'Role ID must be an integer'
         }])
     }
-
     // Non-admins can only delete themselves
-    if (id !== req.user.id && req.user.role !== 'admin') {
+    if (id !== req.user.id && req.user.role.dataValues.name !== 'admin') {
         throw new ForbiddenError('You can only delete your own account');
     }
 

@@ -4,8 +4,7 @@ const catchAsync = require('../../utils/catchAsync');
 
 const verifyJWT = catchAsync(async (req, res, next) => {
     // Get token from headers
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(' ')[1]; // Optional chaining
+    const token = req.cookies.jwt;
 
     // Verify token is not empty
     if (!token) {
@@ -24,7 +23,7 @@ const verifyJWT = catchAsync(async (req, res, next) => {
 // Role-based access control
 const restrictTo = (...roles) => {
     return (req, res, next) => {
-        const role = req.user.role;
+        const role = req.user.role.dataValues.name;
         if (!roles.includes(role)) {
             throw new UnauthorizedError('You do not have permission to perform this action');
         }

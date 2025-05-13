@@ -1,4 +1,5 @@
 const User = require('../../models').User;
+const Role = require('../../models').Role;
 const {generateToken} = require('../../utils/auth/generateToken');
 const catchAsync = require('../../utils/catchAsync');
 const NotFoundError = require("../../errors/errorTypes/NotFoundError");
@@ -38,22 +39,22 @@ exports.createSession = catchAsync(async (req, res) => {
         throw new NotFoundError('No user with those credentials.');
     }
 
-    const role = user.Role.name;
+    const role = user.Role;
     const token = await generateToken(user.id, role);
 
     res.cookie('jwt', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // HTTPS in production
-        sameSite: process.env.NODE_ENV === 'development' ? 'none' : 'lax',
+        secure: false,
+        sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        domain: process.env.NODE_ENV === 'production' ? 'yourDomain.com' : undefined
+        domain: undefined
     })
 
     const userData = {
         id: user.id,
         email: user.email,
         name_tag: user.name_tag,
-        role: role,
+        Role: role,
     }
 
     res.status(200).json({
@@ -62,14 +63,14 @@ exports.createSession = catchAsync(async (req, res) => {
     })
 });
 
-exports.deleteSession = catchAsync(async (req, res) => {
+exports.deleteSession = catchAsync(async (req, res) =>  {
     res.clearCookie('jwt', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // HTTPS in production
-        sameSite: process.env.NODE_ENV === 'development' ? 'none' : 'lax',
+        secure: false,
+        sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        domain: process.env.NODE_ENV === 'production' ? 'yourDomain.com' : undefined
-    });
+        domain: undefined
+    })
     res.status(204).end();
 });
 
@@ -80,10 +81,10 @@ exports.checkSession = catchAsync(async (req, res) => {
         throw new UnauthorizedError('Not authenticated');
     }
 
-    const secret = new TextEncoder().encode(process.env.NODE_ENV);
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload } = await jwt.jwtVerify(token, secret);
 
-    const user = await User.findByPk(payload.userId, {
+    const user = await User.findByPk(payload.id, {
         attributes: { exclude: ['password'] },
         include: [{
             model: Role,

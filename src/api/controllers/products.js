@@ -10,7 +10,7 @@ exports.parseFormData = upload.none();
 
 exports.createProduct =catchAsync(async (req, res) => {
     const { name, description, image_url, image_alt, component_id, price, rating } = req.body;
-
+    console.log(name)
     if (!name || !description || !image_url || !image_alt || !component_id || !price || !rating) {
         throw new ValidationError(
             [
@@ -43,6 +43,8 @@ exports.createProduct =catchAsync(async (req, res) => {
         price,
         rating,
     })
+
+    console.log(newProduct)
 
     res.status(201).json({
         status: 'success',

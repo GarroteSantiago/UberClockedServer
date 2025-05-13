@@ -13,13 +13,15 @@ const componentRoutes = require('./api/routes/components');
 const productRoutes = require('./api/routes/products');
 const shoppingCartRoutes = require('./api/routes/shoppingCarts');
 const { errorHandler } = require('./errors/errorHandler');
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
 // Security middleware
 app.use(helmet());
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(',') || '*'
+    origin: 'http://localhost:5173', // Frontend Vite URL
+    credentials: true // If you're sending cookies or auth headers
 }));
 
 // Rate limiting
@@ -27,10 +29,13 @@ const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100 // limit each IP to 100 requests per windowMs
 });
+
 app.use(limiter);
 
 // Body parsing
 app.use(express.json({ limit: '10kb' }));
+
+app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes)
