@@ -118,26 +118,10 @@ exports.updateUser = catchAsync(async (req, res) => {
     }
 
     // Prevent role escalation
-    if (updateData.role_id && req.user.role !== 'admin') {
+    if (updateData.role_id && req.user.role.dataValues.name !== 'admin') {
         throw new ForbiddenError('Only admins can change roles');
-
     }
 
-    // Check for unique email
-    if (updateData.email) {
-        const existing = await User.findOne({ where: { email: updateData.email } });
-        if (existing && existing.id !== id) {
-            throw new ConflictError('Email already in use');
-        }
-    }
-
-    // Check for unique name_tag
-    if (updateData.name_tag) {
-        const existing = await User.findOne({ where: { name_tag: updateData.name_tag } });
-        if (existing && existing.id !== id) {
-            throw new ConflictError('Name tag already in use');
-        }
-    }
 
     if (Object.keys(updateData).length === 0) {
         throw new ValidationError([{
