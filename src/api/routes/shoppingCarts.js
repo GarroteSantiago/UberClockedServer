@@ -8,7 +8,7 @@ const { verifyJWT, restrictTo } = require('../middlewares/authMiddleware');
 // Protected Routes
 router.use(verifyJWT);
 // GET all shopping carts for a specific user
-router.get('/', controller.readShoppingCarts)
+router.get('/', controller.readUserShoppingCarts)
 // GET a specific shopping cart through its id
 router.get('/:id', checkOwnership(ShoppingCart), controller.readShoppingCart)
 // GET all the products of a specific shopping cart through its id

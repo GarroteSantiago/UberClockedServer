@@ -101,13 +101,14 @@ exports.createProductInShoppingCart = catchAsync(async (req, res) => {
     }
 });
 
-exports.readShoppingCarts = catchAsync(async (req, res) => {
+exports.readUserShoppingCarts = catchAsync(async (req, res) => {
     const userId = req.user.id;
 
     const rows = await ShoppingCart.findAll({
             where:
                 {
                     user_id: userId,
+                    is_active: true,
                 }
     });
 

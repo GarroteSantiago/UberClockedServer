@@ -1,6 +1,10 @@
 const Order = require('../../../models').Order;
 const Invoice = require('../../../models').Invoice;
-const Cart = require('../../../models').ShoppingCart;
+const ShoppingCart = require('../../../models').ShoppingCart;
+const User = require('../../../models').User;
+const Product = require('../../../models').Product;
+const Status = require('../../../models').Status;
+
 const catchAsync = require('../../../utils/catchAsync');
 const NotFoundError = require("../../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../../errors/errorTypes/ValidationError');
@@ -32,7 +36,7 @@ exports.createOrder = catchAsync(async (req, res) => {
         throw new ConflictError(`Order already exists for cart`, cart_id);
     }
 
-    const cart = await Cart.findByPk(cart_id);
+    const cart = await ShoppingCart.findByPk(cart_id);
 
     const products = await cart.getProducts()
 
@@ -109,7 +113,30 @@ exports.updateOrder = catchAsync(async (req, res) => {
 });
 
 exports.readOrders = catchAsync(async (req, res) => {
-    const orders = await Order.findAll();
+    const orders = await Order.findAll({
+        include: [
+            {
+                model: User,
+                attributes: ['email'],
+            },
+            {
+                model: ShoppingCart,
+                attributes: ['name'],
+                include: [
+                    {
+                        model: Product,
+                        attributes: ['name', 'price'],
+                        through: { attributes: ['quantity'] },
+                    }
+                ]
+            },
+            {
+                model: Status,
+                attributes: ['name']
+            }
+        ],
+        attributes: ['id', 'created_at']
+    });
 
     if (!orders || orders.length === 0) {
         throw new NotFoundError('Orders not found.');
