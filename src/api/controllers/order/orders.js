@@ -1,10 +1,10 @@
-const Order = require('../../models').Order;
-const Invoice = require('../../models').Invoice;
-const Cart = require('../../models').ShoppingCart;
-const catchAsync = require('../../utils/catchAsync');
-const NotFoundError = require("../../errors/errorTypes/NotFoundError");
-const ValidationError = require('../../errors/errorTypes/ValidationError');
-const ConflictError = require('../../errors/errorTypes/ConflictError');
+const Order = require('../../../models').Order;
+const Invoice = require('../../../models').Invoice;
+const Cart = require('../../../models').ShoppingCart;
+const catchAsync = require('../../../utils/catchAsync');
+const NotFoundError = require("../../../errors/errorTypes/NotFoundError");
+const ValidationError = require('../../../errors/errorTypes/ValidationError');
+const ConflictError = require('../../../errors/errorTypes/ConflictError');
 const multer = require("multer");
 const upload = multer()
 
