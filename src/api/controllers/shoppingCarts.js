@@ -131,9 +131,10 @@ exports.readShoppingCart = catchAsync(async (req, res) => {
 });
 
 exports.readShoppingCartProducts = catchAsync(async (req, res) => {
+    const products = await req.resource.getProducts()
     res.status(200).json({
         status: 'success',
-        data: req.resource.getProducts(),
+        data: products,
     })
 });
 
