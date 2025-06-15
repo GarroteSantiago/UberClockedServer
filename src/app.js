@@ -13,6 +13,8 @@ const componentRoutes = require('./api/routes/components');
 const productRoutes = require('./api/routes/products');
 const shoppingCartRoutes = require('./api/routes/shoppingCarts');
 const orders = require('./api/routes/order/orders');
+const invoices = require('./api/routes/order/invoices');
+const statuses = require('./api/routes/order/statuses');
 const { errorHandler } = require('./errors/errorHandler');
 const cookieParser = require("cookie-parser");
 
@@ -42,6 +44,8 @@ app.use('/api/roles', roleRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/shoppingCart', shoppingCartRoutes)
 app.use('/api/orders', orders)
+app.use('/api/invoices', invoices)
+app.use('/api/statuses', statuses)
 
 // Error handling (must be last!)
 app.use((err, req, res, next) => errorHandler(err, req, res, next));
