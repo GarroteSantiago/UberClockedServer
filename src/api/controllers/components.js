@@ -107,7 +107,7 @@ exports.readComponent = catchAsync(async (req, res) => {
 
     res.status(200).json({
         status: 'success',
-        data: { componentItem: component },
+        data: component,
     })
 
 });
