@@ -76,8 +76,8 @@ exports.createProductInShoppingCart = catchAsync(async (req, res) => {
         });
 
     if (products.length > 0) {
-        const existingQuantity = products[0].CartProduct.quantity;
-        const newQuantity = existingQuantity + quantity;
+        const existingQuantity = Number(products[0].CartProduct.quantity);
+        const newQuantity = existingQuantity + Number(quantity);
 
         await shoppingCart.addProduct(product, {
             through: { quantity: newQuantity }
@@ -86,17 +86,17 @@ exports.createProductInShoppingCart = catchAsync(async (req, res) => {
         return res.status(201).json({
             status: 'success',
             message: 'Product quantity updated in cart',
-            data: null
+            data: {newQuantity}
         })
     } else {
         await shoppingCart.addProduct(product, {
-            through: { quantity: quantity }
+            through: { quantity: Number(quantity) },
         });
 
         return res.status(201).json({
             status: 'success',
             message: 'Product added to cart successfully',
-            data: null
+            data: {quantity}
         });
     }
 });
