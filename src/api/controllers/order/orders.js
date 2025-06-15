@@ -13,6 +13,7 @@ exports.parseFormData = upload.none();
 exports.createOrder = catchAsync(async (req, res) => {
     const user_id = req.user.id;
     const status_id = 1;
+    console.log(req.body);
     const { cart_id, payment_method } = req.body;
 
     if (!cart_id || !user_id || !payment_method) {
@@ -31,15 +32,15 @@ exports.createOrder = catchAsync(async (req, res) => {
         throw new ConflictError(`Order already exists for cart`, cart_id);
     }
 
-    const cart = await Cart.findByPk(cart_id, {
-        include: ['products']
-    });
+    const cart = await Cart.findByPk(cart_id);
 
-    if (!cart) {
+    const products = await cart.getProducts()
+
+    if (!products) {
         throw new NotFoundError(`Cart not found`, cart_id);
     }
 
-    const amount = cart.products?.reduce((acc, product) => {
+    const amount = products.reduce((acc, product) => {
         return acc + parseFloat(product.price || 0);
     }, 0.00) || 0.00;
 
@@ -55,6 +56,8 @@ exports.createOrder = catchAsync(async (req, res) => {
         status_id,
         invoice_id: newInvoice.id,
     });
+
+    await cart.update({ is_active: false });
 
     res.status(201).json({
         status: 'success',

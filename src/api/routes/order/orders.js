@@ -14,7 +14,7 @@ router.get('/all', restrictTo("admin"), controller.readOrders);
 // GET a specific order through its id
 router.get('/:id', checkOwnership(Order), controller.readOrder);
 // POST an order
-router.post('/', restrictTo("user","admin"), controller.createOrder);
+router.post('/', controller.parseFormData, restrictTo("user","admin"), controller.createOrder);
 // PATCH an order
 router.patch('/:id', restrictTo("admin"), controller.updateOrder);
 
