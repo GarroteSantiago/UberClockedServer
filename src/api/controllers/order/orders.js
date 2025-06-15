@@ -114,7 +114,6 @@ exports.readOrders = catchAsync(async (req, res) => {
 
     res.status(200).json({
         status: 'success',
-        results: orders.length,
         data: orders,
     });
 });
@@ -131,7 +130,6 @@ exports.readOrdersByUserId = catchAsync(async (req, res) => {
 
     res.status(200).json({
         status: 'success',
-        results: orders.length,
         data: orders,
     });
 });
