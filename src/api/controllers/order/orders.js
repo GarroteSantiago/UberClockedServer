@@ -87,14 +87,14 @@ exports.updateOrder = catchAsync(async (req, res) => {
         }]);
     }
 
-    const validFields = ['status_id'];
+        const validFields = ['status_id', 'delivery_date'];
     const invalidFields = Object.keys(updateData).filter(field => !validFields.includes(field));
 
     if (invalidFields.length > 0) {
         throw new ValidationError(
             invalidFields.map(field => ({
                 field,
-                message: `Field '${field}' is not updatable. Only 'status_id' can be changed.`
+                message: `Field '${field}' is not updatable. Only 'status_id' and 'delivery_date' can be changed.`
             }))
         );
     }
@@ -117,7 +117,7 @@ exports.readOrders = catchAsync(async (req, res) => {
         include: [
             {
                 model: User,
-                attributes: ['email'],
+                attributes: ['name'],
             },
             {
                 model: ShoppingCart,
@@ -135,7 +135,7 @@ exports.readOrders = catchAsync(async (req, res) => {
                 attributes: ['name']
             }
         ],
-        attributes: ['id', 'created_at']
+        attributes: ['id', 'created_at', 'delivery_date']
     });
 
     if (!orders || orders.length === 0) {

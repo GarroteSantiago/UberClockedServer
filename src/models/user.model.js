@@ -15,8 +15,14 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: 'RESTRICT',
                 onUpdate: 'CASCADE',
             })
+            User.belongsTo(models.Ubication, {
+                foreignKey: 'ubication_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            })
             User.hasMany(models.ShoppingCart, {
                 foreignKey: 'user_id',
+                as: 'ShoppingCart',
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
             })
@@ -52,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: false
             },
-            ubication: {
+            ubication_id: {
                 type: DataTypes.BIGINT,
                 allowNull: true,
                 references: {

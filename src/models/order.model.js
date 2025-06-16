@@ -50,6 +50,11 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 onDelete: 'RESTRICT'
             },
+            delivery_date: {
+                type: DataTypes.DATE,
+                allowNull: true,
+                defaultValue: null,
+            },
             invoice_id: {
                 type: DataTypes.BIGINT,
                 allowNull: true,

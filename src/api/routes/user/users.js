@@ -14,7 +14,7 @@ router.use(verifyJWT);
 // GET a personal specific user
 router.get('/me', controller.readUser);
 // PATCH personal user
-router.patch('/me', controller.parseFormData, controller.updateUser)
+router.patch('/me', controller.parseFormData, controller.updateMe)
 // DELETE personal user
 router.delete('/me', controller.deleteUser)
 

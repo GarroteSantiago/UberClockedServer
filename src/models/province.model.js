@@ -9,16 +9,21 @@ const { Model, Sequelize } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Province extends Model {
         static associate(models) {
+            Province.belongsTo(models.Country, {
+                foreignKey: 'country_id',
+                onDelete: 'CASCADE',
+                onUpdate: 'CASCADE',
+            });
+
             Province.hasMany(models.Ubication, {
                 foreignKey: 'province_id',
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
-            })
+            });
         }
     }
 
-    Province.init
-    (
+    Province.init(
         {
             id: {
                 type: DataTypes.BIGINT,
@@ -29,6 +34,14 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: false,
                 unique: true
+            },
+            country_id: {
+                type: DataTypes.BIGINT,
+                allowNull: false,
+                references: {
+                    model: 'countries',
+                    key: 'id'
+                }
             }
         },
         {

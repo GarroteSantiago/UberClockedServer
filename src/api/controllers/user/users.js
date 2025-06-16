@@ -1,4 +1,9 @@
 const User = require('../../../models').User;
+const Role = require('../../../models').Role;
+const Ubication = require('../../../models').Ubication;
+const Country = require('../../../models').Country;
+const Province = require('../../../models').Province;
+const Locality = require('../../../models').Locality;
 const catchAsync = require('../../../utils/catchAsync');
 const NotFoundError = require("../../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../../errors/errorTypes/ValidationError');
@@ -7,6 +12,7 @@ const ForbiddenError = require('../../../errors/errorTypes/ForbiddenError');
 const multer = require("multer");
 const upload = multer()
 const passwordUtils = require('../../../utils/auth/passwordUtils');
+const {where} = require("sequelize");
 
 exports.parseFormData = upload.none();
 
@@ -86,7 +92,31 @@ exports.readUser = catchAsync(async (req, res) => {
     }
 
     const user = await User.findByPk(id, {
-        attributes: { exclude: ['password'] }
+        attributes: { exclude: ['password'] },
+        include: [
+            {
+                model: Role,
+                attributes: ['name']
+            },
+            {
+                model: Ubication,
+                attributes: ['id'],
+                include: [
+                    {
+                        model: Country,
+                        attributes: ['name']
+                    },
+                    {
+                        model: Province,
+                        attributes: ['name']
+                    },
+                    {
+                        model: Locality,
+                        attributes: ['name']
+                    },
+                ]
+            }
+        ]
     });
 
     if (!user) {
@@ -98,6 +128,81 @@ exports.readUser = catchAsync(async (req, res) => {
         data: user,
     })
 
+});
+
+exports.updateMe = catchAsync(async (req, res) => {
+    const id = req.user.id;
+    const updateData = req.body;
+
+    if (!Number.isInteger(Number(id))) {
+        throw new ValidationError([{
+            field: 'id',
+            message: 'User ID must be an integer'
+        }])
+    }
+
+    // Non-admins can only update themselves
+    if (id !== req.user.id && req.user.role.dataValues.name !== 'admin') {
+        throw new ForbiddenError('You can only update your own profile');
+
+    }
+
+    // Prevent role escalation
+    if (updateData.role_id && req.user.role.dataValues.name !== 'admin') {
+        throw new ForbiddenError('Only admins can change roles');
+    }
+
+    const ubications = await Ubication.findAll({
+        where: {
+            country_id: updateData.ubication.country_id,
+            province_id: updateData.ubication.province_id,
+            locality_id: updateData.ubication.locality_id
+        }
+    })
+
+    delete updateData.ubication;
+    const user = await User.findByPk(id);
+
+    if (ubications.length === 0) {
+        const newUbication = await Ubication.create({
+            country_id: updateData.ubication.country_id,
+            province_id: updateData.ubication.province_id,
+            locality_id: updateData.ubication.locality_id
+        })
+        user.setUbication(newUbication.id)
+    } else {
+        user.setUbication(ubications[0].id)
+    }
+
+    if (Object.keys(updateData).length === 0) {
+        throw new ValidationError([{
+            field: 'body',
+            message: 'No fields provided for update'
+        }])
+    }
+
+    const validFields = ['role_id', 'name', 'name_tag', 'email', 'ubication', 'postal_code'];
+    const invalidFields = Object.keys(updateData).filter(field => !(validFields.includes(field)));
+
+    if (invalidFields.length > 0) {
+        throw new ValidationError(
+            invalidFields.map(field => ({
+                field: {field},
+                message: `Field ${field} is not updatable.`
+            })),
+        )
+    }
+
+    if (!user) {
+        throw new NotFoundError(`User ${id} not found.`);
+    }
+
+    const updatedUser = await user.update(updateData);
+
+    res.status(200).json({
+        status: 'success',
+        data: updatedUser
+    })
 });
 
 exports.updateUser = catchAsync(async (req, res) => {
