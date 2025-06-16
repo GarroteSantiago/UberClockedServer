@@ -22,6 +22,9 @@ module.exports = (sequelize, DataTypes) => {
                 onUpdate: 'CASCADE',
                 otherKey: 'shopping_cart_id',
             })
+            Product.hasMany(models.Review,{
+                    foreignKey: 'product_id'
+            });
         }
     }
 
