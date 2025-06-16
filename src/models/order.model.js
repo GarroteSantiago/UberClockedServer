@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
                 autoIncrement: true,
                 primaryKey: true,
             },
+            value: {
+                type: DataTypes.FLOAT,
+                allowNull: false,
+                defaultValue: 0,
+            },
             user_id: {
                 type: DataTypes.BIGINT,
                 allowNull: false,
@@ -74,6 +79,47 @@ module.exports = (sequelize, DataTypes) => {
             createdAt: 'created_at',
         }
     );
+    Order.addHook('beforeCreate', async (order, options) => {
+        const { ShoppingCart, Product } = sequelize.models;
+
+        const cart = await ShoppingCart.findByPk(order.cart_id, {
+            include: {
+                model: Product,
+                through: { attributes: ['quantity'] }
+            }
+        });
+
+        if (!cart) throw new Error('Cart not found');
+
+        let total = 0;
+        for (const product of cart.Products) {
+            const quantity = product.CartProduct.quantity;
+            total += product.price * quantity;
+        }
+
+        order.value = total;
+    });
+    Order.addHook('afterCreate', async (order, options) => {
+        // hook 1: generar invoice
+        const { Invoice } = sequelize.models;
+        const invoice = await Invoice.create({
+            user_id: order.user_id,
+            amount: order.value,
+            payment_method: order.payment_method || 'N/A',
+        });
+        order.invoice_id = invoice.id;
+        await order.save({ transaction: options.transaction });
+
+        // hook 2: desactivar carrito
+        const { ShoppingCart } = sequelize.models;
+        const cart = await ShoppingCart.findByPk(order.cart_id);
+        if (cart && cart.is_active) {
+            cart.is_active = false;
+            await cart.save({ transaction: options.transaction });
+        }
+    });
+
 
     return Order;
 };
+

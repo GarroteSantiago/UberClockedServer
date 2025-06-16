@@ -17,7 +17,6 @@ exports.parseFormData = upload.none();
 exports.createOrder = catchAsync(async (req, res) => {
     const user_id = req.user.id;
     const status_id = 1;
-    console.log(req.body);
     const { cart_id, payment_method } = req.body;
 
     if (!cart_id || !user_id || !payment_method) {
@@ -36,32 +35,11 @@ exports.createOrder = catchAsync(async (req, res) => {
         throw new ConflictError(`Order already exists for cart`, cart_id);
     }
 
-    const cart = await ShoppingCart.findByPk(cart_id);
-
-    const products = await cart.getProducts()
-
-    if (!products) {
-        throw new NotFoundError(`Cart not found`, cart_id);
-    }
-
-    const amount = products.reduce((acc, product) => {
-        return acc + parseFloat(product.price || 0);
-    }, 0.00) || 0.00;
-
-    const newInvoice = await Invoice.create({
-        user_id,
-        amount,
-        payment_method,
-    });
-
     const newOrder = await Order.create({
         user_id,
         cart_id,
-        status_id,
-        invoice_id: newInvoice.id,
+        status_id
     });
-
-    await cart.update({ is_active: false });
 
     res.status(201).json({
         status: 'success',
@@ -87,7 +65,7 @@ exports.updateOrder = catchAsync(async (req, res) => {
         }]);
     }
 
-        const validFields = ['status_id', 'delivery_date'];
+    const validFields = ['status_id', 'delivery_date'];
     const invalidFields = Object.keys(updateData).filter(field => !validFields.includes(field));
 
     if (invalidFields.length > 0) {
