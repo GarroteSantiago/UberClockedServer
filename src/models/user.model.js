@@ -28,6 +28,12 @@ module.exports = (sequelize, DataTypes) => {
             })
             User.hasMany(models.Review,{
                 foreignKey: 'user_id'
+            })
+            User.belongsToMany(models.Board, {
+                through: models.BoardInterestedUsers,
+                foreignKey: 'user_id',
+                otherKey: 'board_id',
+                as: 'interested_boards'
             });
         }
     }
