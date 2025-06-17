@@ -13,7 +13,7 @@ exports.parseFormData = upload.none();
 // CREATE
 exports.createBoard = catchAsync(async (req, res) => {
     const { title, description } = req.body;
-    const owner_id = req.user.id;
+    const user_id = req.user.id;
 
     if (!title) {
         throw new ValidationError(
@@ -28,7 +28,7 @@ exports.createBoard = catchAsync(async (req, res) => {
     const board = await Board.create({
         title,
         description,
-        owner_id,
+        user_id,
         is_available: true
     });
 
@@ -36,7 +36,7 @@ exports.createBoard = catchAsync(async (req, res) => {
 });
 
 exports.createBoardInterest = catchAsync(async (req, res) => {
-    const { board_id } = req.body;
+    const { board_id } = req.params;
     const userId = req.user.id;
 
     const board = await Board.findByPk(board_id);
@@ -77,8 +77,8 @@ exports.getBoardInterestedUsers = catchAsync(async (req, res) => {
 });
 
 exports.getMyBoards = catchAsync(async (req, res) => {
-    const myBoards = await Board.findAll({ where: { owner_id: req.user.id } });
-    res.status(200).json({ status: 'success', results: myBoards.length, data: myBoards });
+    const myBoards = await Board.findAll({ where: { user_id: req.user.id } });
+    res.status(200).json({ status: 'success', data: myBoards });
 });
 
 // UPDATE
@@ -120,7 +120,6 @@ exports.deleteBoard = catchAsync(async (req, res) => {
     const { id } = req.params;
     const board = await Board.findByPk(id);
     if (!board) throw new NotFoundError('Board not found');
-    if (board.owner_id !== req.user.id) throw new ValidationError([{ field: 'owner', message: 'Not owner of board' }]);
 
     await board.destroy();
     res.status(200).json({ status: 'success', message: 'Board deleted' });

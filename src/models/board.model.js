@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: true
             },
-            owner_id: {
+            user_id: {
                 type: DataTypes.BIGINT,
                 allowNull: false,
                 references: {

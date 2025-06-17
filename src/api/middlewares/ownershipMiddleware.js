@@ -10,7 +10,8 @@ exports.checkOwnership = (model, options = {}) => catchAsync(async (req, res, ne
         throw new NotFoundError(`${model.name} not found`);
     }
 
-    if (req.user.role !== 'admin' && resource.user_id !== req.user.id) {
+    const roleName = req.user.role?.dataValues?.name;
+    if (roleName !== 'admin' && resource.user_id !== req.user.id) {
         throw new ForbiddenError('You do not have permission for this resource');
     }
 

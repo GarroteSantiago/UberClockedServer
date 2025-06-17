@@ -8,6 +8,9 @@ const { verifyJWT } = require('../middlewares/authMiddleware');
 // Protected Routes
 router.use(verifyJWT);
 
+// GET my boards – debe ir antes que '/:id'
+router.get('/me', controller.getMyBoards);
+
 // GET all boards
 router.get('/', controller.getAllBoards);
 
@@ -16,9 +19,6 @@ router.get('/:id', controller.getBoardById);
 
 // GET all interested users of a board
 router.get('/:id/interested-users', controller.getBoardInterestedUsers);
-
-// GET my boards
-router.get('/me', controller.getMyBoards);
 
 // POST a board
 router.post('/', controller.parseFormData, controller.createBoard);
@@ -34,5 +34,6 @@ router.delete('/:id', checkOwnership(Board), controller.deleteBoard);
 
 // DELETE interest of current user in a board
 router.delete('/:board_id/interested-users', controller.deleteBoardInterest);
+
 
 module.exports = router;
