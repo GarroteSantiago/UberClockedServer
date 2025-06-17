@@ -16,7 +16,7 @@ router.get('/', controller.getAllBoards);
 router.get('/me', controller.getMyBoards);
 
 // GET my boards
-router.get('/me/interested', checkOwnership(Board), controller.getMyInterestedBoards);
+router.get('/me/interested', controller.getMyInterestedBoards);
 
 // GET a specific board
 router.get('/:id', checkOwnership(Board), controller.getBoardById);

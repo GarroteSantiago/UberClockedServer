@@ -69,7 +69,10 @@ exports.createUser =catchAsync(async (req, res) => {
 exports.readUsers = catchAsync(async (req, res) => {
 
     const rows = await User.findAll({
-        attributes: { exclude: ['password'] }
+        attributes: { exclude: ['password'] },
+        include: [
+            {model: Role}
+        ]
     });
 
     if (!rows || rows.length === 0) {

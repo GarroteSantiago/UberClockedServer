@@ -4,6 +4,8 @@ const NotFoundError = require('../../errors/errorTypes/NotFoundError');
 
 exports.checkOwnership = (model, options = {}) => catchAsync(async (req, res, next) => {
     const paramName = options.paramName || 'id';
+    console.log('paramName', paramName);
+    console.log(req.params[paramName]);
     const resource = await model.findByPk(req.params[paramName]);
 
     if (!resource) {

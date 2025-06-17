@@ -9,14 +9,14 @@ const { verifyJWT, restrictTo } = require('../../middlewares/authMiddleware');
 router.use(verifyJWT);
 // GET all my orders
 router.get('/', controller.readMyOrders);
-// GET all orders for a specific user
-router.get('/:id', checkOwnership(Order), controller.readOrdersByUserId);
 // GET all orders
 router.get('/all', restrictTo("admin"), controller.readOrders);
+// GET all orders for a specific user
+router.get('/:id', checkOwnership(Order), controller.readOrdersByUserId);
 // GET a specific order through its id
 router.get('/:id', checkOwnership(Order), controller.readOrder);
 // POST an order
-router.post('/', controller.parseFormData, restrictTo("user","admin"), controller.createOrder);
+router.post('/', controller.parseFormData, restrictTo("user", "organization","admin"), controller.createOrder);
 // PATCH an order
 router.patch('/:id', restrictTo("admin"), controller.updateOrder);
 
