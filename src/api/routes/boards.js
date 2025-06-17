@@ -8,11 +8,15 @@ const { verifyJWT } = require('../middlewares/authMiddleware');
 // Protected Routes
 router.use(verifyJWT);
 
-// GET my boards – debe ir antes que '/:id'
-router.get('/me', controller.getMyBoards);
 
 // GET all boards
 router.get('/', controller.getAllBoards);
+
+// GET my boards
+router.get('/me', controller.getMyBoards);
+
+// GET my boards
+router.get('/me/interested', controller.getMyInterestedBoards);
 
 // GET a specific board
 router.get('/:id', controller.getBoardById);

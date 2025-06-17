@@ -77,7 +77,25 @@ exports.getBoardInterestedUsers = catchAsync(async (req, res) => {
 });
 
 exports.getMyBoards = catchAsync(async (req, res) => {
-    const myBoards = await Board.findAll({ where: { user_id: req.user.id } });
+    const myBoards = await Board.findAll({
+        where: { user_id: req.user.id },
+        include :[
+            {
+                model: User,
+                as: 'interested_users',
+            }
+        ]
+    });
+    res.status(200).json({ status: 'success', data: myBoards });
+});
+
+exports.getMyInterestedBoards = catchAsync(async (req, res) => {
+    const myBoards = await BoardInterestedUsers.findAll({
+        where: { user_id: req.user.id },
+        include : {
+            model: Board,
+        }
+    });
     res.status(200).json({ status: 'success', data: myBoards });
 });
 

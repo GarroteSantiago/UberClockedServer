@@ -147,31 +147,40 @@ exports.updateMe = catchAsync(async (req, res) => {
 
     }
 
+    Object.keys(updateData).forEach(key => {
+        if (!updateData[key]) {
+            delete updateData[key];
+        }
+    });
+
+    const user = await User.findByPk(id);
+
     // Prevent role escalation
     if (updateData.role_id && req.user.role.dataValues.name !== 'admin') {
         throw new ForbiddenError('Only admins can change roles');
     }
 
-    const ubications = await Ubication.findAll({
-        where: {
-            country_id: updateData.ubication.country_id,
-            province_id: updateData.ubication.province_id,
-            locality_id: updateData.ubication.locality_id
-        }
-    })
-
-    delete updateData.ubication;
-    const user = await User.findByPk(id);
-
-    if (ubications.length === 0) {
-        const newUbication = await Ubication.create({
-            country_id: updateData.ubication.country_id,
-            province_id: updateData.ubication.province_id,
-            locality_id: updateData.ubication.locality_id
+    if (Object.keys(updateData).includes('ubication')) {
+        const ubications = await Ubication.findAll({
+            where: {
+                country_id: updateData.ubication.country_id,
+                province_id: updateData.ubication.province_id,
+                locality_id: updateData.ubication.locality_id
+            }
         })
-        user.setUbication(newUbication.id)
-    } else {
-        user.setUbication(ubications[0].id)
+
+        delete updateData.ubication;
+
+        if (ubications.length === 0) {
+            const newUbication = await Ubication.create({
+                country_id: updateData.ubication.country_id,
+                province_id: updateData.ubication.province_id,
+                locality_id: updateData.ubication.locality_id
+            })
+            user.setUbication(newUbication.id)
+        } else {
+            user.setUbication(ubications[0].id)
+        }
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -226,7 +235,6 @@ exports.updateUser = catchAsync(async (req, res) => {
     if (updateData.role_id && req.user.role.dataValues.name !== 'admin') {
         throw new ForbiddenError('Only admins can change roles');
     }
-
 
     if (Object.keys(updateData).length === 0) {
         throw new ValidationError([{
