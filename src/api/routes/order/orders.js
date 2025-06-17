@@ -7,8 +7,10 @@ const { verifyJWT, restrictTo } = require('../../middlewares/authMiddleware');
 
 // Protected Routes
 router.use(verifyJWT);
+// GET all my orders
+router.get('/', controller.readMyOrders);
 // GET all orders for a specific user
-router.get('/', checkOwnership(Order), controller.readOrdersByUserId);
+router.get('/:id', checkOwnership(Order), controller.readOrdersByUserId);
 // GET all orders
 router.get('/all', restrictTo("admin"), controller.readOrders);
 // GET a specific order through its id

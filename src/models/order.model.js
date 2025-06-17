@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     );
     Order.addHook('beforeCreate', async (order, options) => {
-        const { ShoppingCart, Product } = sequelize.models;
+        const { ShoppingCart, Product, User, Role } = sequelize.models;
 
         const cart = await ShoppingCart.findByPk(order.cart_id, {
             include: {
@@ -88,6 +88,12 @@ module.exports = (sequelize, DataTypes) => {
                 through: { attributes: ['quantity'] }
             }
         });
+
+        const user = await User.findByPk(order.user_id, {
+            include: {
+                model: Role,
+            }
+        })
 
         if (!cart) throw new Error('Cart not found');
 
@@ -97,7 +103,13 @@ module.exports = (sequelize, DataTypes) => {
             total += product.price * quantity;
         }
 
-        order.value = total;
+        console.log(user);
+
+        if (user.Role.name === 'organization') {
+            order.value = total * .89;
+        } else {
+            order.value = total;
+        }
     });
     Order.addHook('afterCreate', async (order, options) => {
         // hook 1: generar invoice

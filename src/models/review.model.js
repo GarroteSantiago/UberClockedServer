@@ -1,12 +1,25 @@
 'use strict';
 
-const { Model } = require('sequelize');
+const { Model, Sequelize } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
     class Review extends Model {
         static associate(models) {
             Review.belongsTo(models.User, { foreignKey: 'user_id' });
             Review.belongsTo(models.Product, { foreignKey: 'product_id' });
+
+            // Hooks deben ir después de que los modelos estén completamente cargados
+            Review.addHook('afterCreate', async (review, options) => {
+                await updateProductRating(models, review.product_id);
+            });
+
+            Review.addHook('afterUpdate', async (review, options) => {
+                await updateProductRating(models, review.product_id);
+            });
+
+            Review.addHook('afterDestroy', async (review, options) => {
+                await updateProductRating(models, review.product_id);
+            });
         }
     }
 
@@ -61,6 +74,23 @@ module.exports = (sequelize, DataTypes) => {
         }
     );
 
+    // Función auxiliar para actualizar rating promedio
+    async function updateProductRating(models, productId) {
+        const result = await Review.findOne({
+            where: { product_id: productId },
+            attributes: [
+                [Sequelize.fn('AVG', Sequelize.col('rating')), 'avgRating']
+            ],
+            raw: true,
+        });
+
+        const avgRating = parseFloat(result.avgRating || 0).toFixed(2);
+
+        await models.Product.update(
+            { rating: avgRating },
+            { where: { id: productId } }
+        );
+    }
 
     return Review;
 };

@@ -126,10 +126,42 @@ exports.readOrders = catchAsync(async (req, res) => {
     });
 });
 
-exports.readOrdersByUserId = catchAsync(async (req, res) => {
+exports.readMyOrders = catchAsync(async (req, res) => {
     const user_id = req.user.id;
     const orders = await Order.findAll({
         where: {user_id},
+        include: [
+            {
+                model: Status,
+                attributes: ['name'],
+            }
+        ]
+    });
+
+    if (!orders || orders.length === 0) {
+        throw new NotFoundError('Orders not found.');
+    }
+
+    res.status(200).json({
+        status: 'success',
+        data: orders,
+    });
+});
+
+exports.readOrdersByUserId = catchAsync(async (req, res) => {
+    const {user_id} = req.body;
+    const orders = await Order.findAll({
+        where: {user_id},
+        include: [
+            {
+                model: User,
+                attributes: ['email'],
+            },
+            {
+                model: Status,
+                attributes: ['name'],
+            }
+        ]
     });
 
     if (!orders || orders.length === 0) {

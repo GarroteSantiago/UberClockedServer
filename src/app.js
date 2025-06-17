@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const authRoutes = require('./api/routes/authentication');
 const localityRoutes = require('./api/routes/ubication/localities');
 const provinceRoutes = require('./api/routes/ubication/provinces');

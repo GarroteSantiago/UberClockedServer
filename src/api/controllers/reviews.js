@@ -1,5 +1,6 @@
 const Review = require('../../models').Review;
 const Product = require('../../models').Product;
+const User = require('../../models').User;
 const catchAsync = require('../../utils/catchAsync');
 const NotFoundError = require("../../errors/errorTypes/NotFoundError");
 const ValidationError = require('../../errors/errorTypes/ValidationError');
@@ -43,10 +44,24 @@ exports.createReview = catchAsync(async (req, res) => {
 });
 
 exports.readReviews = catchAsync(async (req, res) => {
-    const reviews = await Review.findAll();
+    const reviews = await Review.findAll({
+        include: [
+            {
+                model: User,
+                attributes: ['id', 'name_tag']
+            },
+            {
+                model: Product,
+                attributes: ['id', 'name']
+            }
+        ],
+        order: [['created_at', 'DESC']]
+    });
+
     if (!reviews || reviews.length === 0) {
         throw new NotFoundError('No reviews found');
     }
+
     res.status(200).json({
         status: 'success',
         results: reviews.length,
@@ -67,8 +82,12 @@ exports.getReviewsByProductId = catchAsync(async (req, res) => {
         where: { product_id },
         include: [
             {
-                model: require('../../models').User,
+                model: User,
                 attributes: ['id', 'name_tag']
+            },
+            {
+                model: Product,
+                attributes: ['id', 'name']
             }
         ],
         order: [['created_at', 'DESC']]
@@ -87,7 +106,16 @@ exports.getReviewsByProductId = catchAsync(async (req, res) => {
 
 exports.readMyReviews = catchAsync(async (req, res) => {
     const user_id = req.user.id;
-    const reviews = await Review.findAll({ where: { user_id } });
+    const reviews = await Review.findAll({
+        where: { user_id },
+        include: [
+            {
+                model: Product,
+                attributes: ['id', 'name']
+            }
+        ],
+        order: [['created_at', 'DESC']]
+    });
 
     if (!reviews || reviews.length === 0) {
         throw new NotFoundError('You have no reviews');
@@ -102,7 +130,18 @@ exports.readMyReviews = catchAsync(async (req, res) => {
 
 exports.readReview = catchAsync(async (req, res) => {
     const { id } = req.params;
-    const review = await Review.findByPk(id);
+    const review = await Review.findByPk(id, {
+        include: [
+            {
+                model: User,
+                attributes: ['id', 'name_tag']
+            },
+            {
+                model: Product,
+                attributes: ['id', 'name']
+            }
+        ]
+    });
 
     if (!review) {
         throw new NotFoundError(`Review with ID ${id} not found`);
@@ -118,7 +157,15 @@ exports.readMyReview = catchAsync(async (req, res) => {
     const user_id = req.user.id;
     const { product_id } = req.params;
 
-    const review = await Review.findOne({ where: { user_id, product_id } });
+    const review = await Review.findOne({
+        where: { user_id, product_id },
+        include: [
+            {
+                model: Product,
+                attributes: ['id', 'name']
+            }
+        ]
+    });
 
     if (!review) {
         throw new NotFoundError('You have not reviewed this product');
