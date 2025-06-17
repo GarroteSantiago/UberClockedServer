@@ -15,6 +15,7 @@ const orders = require('./api/routes/order/orders');
 const invoices = require('./api/routes/order/invoices');
 const statuses = require('./api/routes/order/statuses');
 const reviews = require('./api/routes/reviews');
+const boards = require('./api/routes/boards');
 const { errorHandler } = require('./errors/errorHandler');
 const cookieParser = require("cookie-parser");
 
@@ -47,6 +48,7 @@ app.use('/api/orders', orders)
 app.use('/api/invoices', invoices)
 app.use('/api/statuses', statuses)
 app.use('/api/reviews', reviews)
+app.use('/api/boards', boards)
 
 // Error handling (must be last!)
 app.use((err, req, res, next) => errorHandler(err, req, res, next));
