@@ -54,13 +54,23 @@ exports.createBoardInterest = catchAsync(async (req, res) => {
 
 // READ
 exports.getAllBoards = catchAsync(async (req, res) => {
-    const boards = await Board.findAll();
+    const boards = await Board.findAll({
+        where: { is_available: true }
+    });
     res.status(200).json({ status: 'success', results: boards.length, data: boards });
 });
 
 exports.getBoardById = catchAsync(async (req, res) => {
     const { id } = req.params;
-    const board = await Board.findByPk(id);
+    const board = await Board.findByPk(id,
+        {
+            include: [
+                {
+                    model: User,
+                    as: 'interested_users',
+                }
+            ]
+        });
     if (!board) throw new NotFoundError('Board not found');
 
     res.status(200).json({ status: 'success', data: board });
@@ -94,6 +104,7 @@ exports.getMyInterestedBoards = catchAsync(async (req, res) => {
         where: { user_id: req.user.id },
         include : {
             model: Board,
+            where: { is_available: true },
         }
     });
     res.status(200).json({ status: 'success', data: myBoards });

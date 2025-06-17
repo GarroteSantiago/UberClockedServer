@@ -16,13 +16,13 @@ router.get('/', controller.getAllBoards);
 router.get('/me', controller.getMyBoards);
 
 // GET my boards
-router.get('/me/interested', controller.getMyInterestedBoards);
+router.get('/me/interested', checkOwnership(Board), controller.getMyInterestedBoards);
 
 // GET a specific board
-router.get('/:id', controller.getBoardById);
+router.get('/:id', checkOwnership(Board), controller.getBoardById);
 
 // GET all interested users of a board
-router.get('/:id/interested-users', controller.getBoardInterestedUsers);
+router.get('/:id/interested-users', checkOwnership(Board), controller.getBoardInterestedUsers);
 
 // POST a board
 router.post('/', controller.parseFormData, controller.createBoard);
