@@ -15,6 +15,9 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: 'CASCADE',
                 onUpdate: 'CASCADE',
             })
+            Product.hasMany(models.ProductFieldValue, {
+                foreignKey: 'product_id',
+            })
             Product.belongsToMany(models.ShoppingCart, {
                 through: models.CartProduct,
                 foreignKey: 'product_id',
