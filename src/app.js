@@ -11,11 +11,12 @@ const userRoutes = require('./api/routes/user/users');
 const componentRoutes = require('./api/routes/components');
 const productRoutes = require('./api/routes/products');
 const shoppingCartRoutes = require('./api/routes/shoppingCarts');
-const orders = require('./api/routes/order/orders');
-const invoices = require('./api/routes/order/invoices');
-const statuses = require('./api/routes/order/statuses');
-const reviews = require('./api/routes/reviews');
-const boards = require('./api/routes/boards');
+const ordersRoutes = require('./api/routes/order/orders');
+const invoicesRoutes = require('./api/routes/order/invoices');
+const statusesRoutes = require('./api/routes/order/statuses');
+const reviewsRoutes = require('./api/routes/reviews');
+const boardsRoutes = require('./api/routes/boards');
+const genericsRoutes = require('./api/routes/generics');
 const { errorHandler } = require('./errors/errorHandler');
 const cookieParser = require("cookie-parser");
 
@@ -34,6 +35,7 @@ app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
 
 // Routes
+app.use('/api', genericsRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/localities', localityRoutes)
 app.use('/api/provinces', provinceRoutes)
@@ -44,11 +46,11 @@ app.use('/api/products', productRoutes)
 app.use('/api/roles', roleRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/shoppingCart', shoppingCartRoutes)
-app.use('/api/orders', orders)
-app.use('/api/invoices', invoices)
-app.use('/api/statuses', statuses)
-app.use('/api/reviews', reviews)
-app.use('/api/boards', boards)
+app.use('/api/orders', ordersRoutes)
+app.use('/api/invoices', invoicesRoutes)
+app.use('/api/statuses', statusesRoutes)
+app.use('/api/reviews', reviewsRoutes)
+app.use('/api/boards', boardsRoutes)
 
 // Error handling (must be last!)
 app.use((err, req, res, next) => errorHandler(err, req, res, next));
